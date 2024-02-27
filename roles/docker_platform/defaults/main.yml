@@ -1,0 +1,35 @@
+---
+# defaults file for docker_platform
+
+# Name of this Molecule platform
+docker_platform_name: instance
+
+# Docker image that this platform runs
+docker_platform_image: "geerlingguy/docker-rockylinux9-ansible:latest"
+
+# Should the provided image be modified at runtime
+docker_platform_modify_image: false
+
+# Path to dockerfile containing the desired runtime modifications
+docker_platform_modify_image_dockerfile: "{{ playbook_dir }}/files/Dockerfile"
+
+# Command to be executed at runtime on the container
+#  Leave as "" to use container default
+docker_platform_command: ""
+
+# Is this a SystemD enabled container?
+docker_platform_systemd: true
+
+# A list of Docker volumes that should be attached to the container
+docker_platform_volumes:
+  - /sys/fs/cgroup/molecule-ci.scope:/sys/fs/cgroup:rw  # TODO: move this to code (always inject when systemd is enabled)
+
+docker_platform_cgroupns_mode: host   # TODO: set this to host if systemd is enabled
+
+# Run the container in Privileged mode (greater host access, less security!)
+docker_platform_privileged: false
+
+# A list of tmpfs filesystem paths to be passed to the container
+docker_platform_tmpfs:
+  - /run    # TODO: inject this if systemd is enabled
+

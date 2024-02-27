@@ -1,0 +1,72 @@
+---
+# Create a docker container for use by molecule
+#
+# Expected to be called in a loop with `platform` defined as the loop var
+#   (loop off of `platforms` list in molecule.yml)
+
+
+- name: Docker image needs to be customized
+  block:
+    - name: Build local image name
+      ansible.builtin.set_fact:
+        docker_built_image_name: "molecule-local-build/{{ platform.image | split(':') | first | split('/') | last }}-custom"
+
+    - name: Dockerfile exists
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/Dockerfile.j2"
+        dest: "{{ playbook_dir }}/files/docker/Dockerfile"
+        mode: 0644
+
+    - name: Docker image is built
+      community.docker.docker_image:
+        name: "{{ docker_built_image_name }}"
+        build:
+          path: "{{ playbook_dir }}/files/docker"
+          cache_from: "{{ platform.image }}"
+        source: build
+        force_source: true    # Always build a new image when this is run
+        tag: latest
+      register: image_build_output
+
+    - name: Show image build details
+      ansible.builtin.debug:
+        var: image_build_output
+        verbosity: 1
+  when: platform.modify_image
+
+- name: Runtime docker container is present and running
+  community.docker.docker_container:
+    name: "{{ platform.name }}"
+    image: "{{ docker_built_image_name | default(platform.image) }}"
+    state: started
+    command: "{{ platform.command }}"
+    log_driver: json-file
+    hostname: molecule-ci
+    init: false
+    cgroupns_mode: "{{ platform.cgroupns_mode | default(false) }}"
+    privileged: "{{ platform.privileged | default(false) }}"
+    tmpfs: "{{ platform.tmpfs | default([]) }}"
+    volumes: "{{ platform.volumes }}"
+  register: docker_create_result
+
+- name: Print some info
+  ansible.builtin.debug:
+    msg: "{{ docker_create_result }}"
+    verbosity: 1
+
+- name: Fail if container is not running
+  block:
+    - name: Retrieve container log
+      ansible.builtin.command:
+        cmd: docker logs {{ docker_create_result.container.Name }}
+      changed_when: false
+      register: logfile_cmd
+
+    - name: Display container log
+      ansible.builtin.fail:
+        msg: "{{ logfile_cmd.stdout ~  logfile_cmd.stderr }}"
+  when: >
+    docker_create_result.container.State.ExitCode != 0 or
+    not docker_create_result.container.State.Running
+
+

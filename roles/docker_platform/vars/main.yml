@@ -1,0 +1,6 @@
+---
+# vars file for docker_platform
+
+# Filesystem location of the Molecule ephemeral directory. Should not need to be updated by the user of this role!
+docker_platform_molecule_ephemeral_directory: "{{ molecule_ephemeral_directory }}"
+

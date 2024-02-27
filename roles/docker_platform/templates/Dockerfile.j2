@@ -1,0 +1,11 @@
+
+FROM {{ platform.image }}
+COPY bash.service /etc/systemd/system/bash.service
+COPY entrypoint.sh /entrypoint.sh
+RUN chown root:root /entrypoint.sh \
+    && chmod 755 /entrypoint.sh \
+    && chown root:root /etc/systemd/system/bash.service \
+    && chmod 644 /etc/systemd/system/bash.service \
+    && systemctl enable bash.service
+ENTRYPOINT ["/entrypoint.sh"]
+
