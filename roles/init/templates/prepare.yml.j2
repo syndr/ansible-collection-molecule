@@ -1,0 +1,45 @@
+---
+
+- name: Prepare controller for execution
+  hosts: localhost
+  tasks:
+    - name: Configure for standalone role testing
+      ansible.builtin.include_role:
+        name: syndr.molecule.prepare_controller
+      vars:
+        prepare_controller_project_type: {{ init_project_type }}
+
+- name: Prepare target host for execution
+  hosts: molecule
+  tasks:
+    - name: Check target kernel version
+      ansible.builtin.raw: uname -a
+      register: uname_raw
+      changed_when: false
+
+    - name: Display kernel information
+      ansible.builtin.debug:
+        var: result.stdout
+
+    - name: Add your host preparation tasks here!
+      ansible.builtin.debug:
+        msg: "IE: adding system users, installing required packages, etc."
+
+    - name: Save vars to host (IE: generated test credentials, etc.)
+      become: true
+      block:
+        - name: Ansible facts directory exists
+          ansible.builtin.file:
+            path: /etc/ansible/facts.d
+            state: directory
+            owner: root
+            group: root
+            mode: 0744
+
+        - name: Prep data saved to local Ansible facts
+          ansible.builtin.copy:
+            dest: /etc/ansible/facts.d/molecule.fact
+            content: "\{\{ {'test_prepare_fact': 'this is a demo!'} | to_json \}\}"
+            owner: root
+            group: root
+            mode: 0644

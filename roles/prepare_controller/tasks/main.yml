@@ -1,0 +1,47 @@
+---
+# tasks file for prepare_controller
+
+- name: Project directory is
+  ansible.builtin.debug:
+    var: prepare_controller_project_dir
+
+- name: Verify project type
+  ansible.builtin.assert:
+    that:
+      - prepare_controller_project_type is in ['role']
+    fail_msg: Unsupported project type specified!
+    success_msg: Project type is supported
+
+- name: Configure controller for role project type
+  block:
+    - name: Load role configuration
+      block:
+        - name: Load role meta file
+          ansible.builtin.include_vars:
+            file: "{{ prepare_controller_project_dir }}/meta/main.yml"
+            name: prepare_controller__project_meta
+
+        - name: Role name is defined
+          ansible.builtin.assert:
+            that:
+              - prepare_controller__project_meta.galaxy_info.role_name is defined
+            fail_msg: This configuration requires the role_name meta variable to be defined!
+            success_msg: Role meta configuration passed!
+      rescue:
+        - name: Configuration load error
+          ansible.builtin.fail:
+            msg: Error loading role meta information! This molecule configuration is meant to be run from the extensions/ subdirectory of your role directory!
+
+    - name: Create roles directory
+      ansible.builtin.file:
+        path: "{{ prepare_controller_role_dir }}"
+        state: directory
+        mode: 0755
+
+    - name: Link current repository to roles working directory
+      ansible.builtin.file:
+        src: "{{ prepare_controller_project_dir }}"
+        dest: "{{ prepare_controller_role_dir }}/{{ prepare_controller__project_meta.galaxy_info.role_name }}"
+        state: link
+  when: prepare_controller_project_type == 'role'
+

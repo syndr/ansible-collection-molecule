@@ -1,0 +1,29 @@
+---
+# tasks file for init
+
+- name: Deploy template
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ init__item }}.j2"
+    dest: "{{ init_scenario_dir }}/{{ init__item }}"
+    mode: 0644
+  loop:
+    - molecule.yml
+    - collections.yml
+    - requirements.yml
+    - prepare.yml
+  loop_control:
+    loop_var: init__item
+
+- name: Deploy playbook
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/{{ init__item }}"
+    dest: "{{ init_scenario_dir }}/{{ init__item }}"
+    mode: 0644
+  loop:
+    - create.yml
+    - converge.yml
+    - verify.yml
+    - destroy.yml
+  loop_control:
+    loop_var: init__item
+

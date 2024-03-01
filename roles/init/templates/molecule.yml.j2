@@ -1,0 +1,67 @@
+---
+role_name_check: true
+dependency:
+  name: galaxy
+driver:
+  name: default
+  options:
+    managed: true
+    login_cmd_template: 'docker exec -ti {instance} bash'
+platforms:
+  - name: instance
+    image: {{ init_platform_image }}
+    systemd: {{ init_platform_systemd }}
+    modify_image: false
+    privileged: false
+provisioner:
+  name: ansible
+  log: True
+  playbooks:
+    prepare: prepare.yml
+    converge: converge.yml
+    verify: verify.yml
+  config_options:
+    defaults:
+      gathering: explicit
+      vault_password_file: ~/.ansible/molecule-ci.pw
+      verbosity: 0
+scenario:
+  create_sequence:
+    - dependency
+    - create
+    - prepare
+  check_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - create
+    - prepare
+    - converge
+    - check
+    - destroy
+  converge_sequence:
+    - dependency
+    - create
+    - prepare
+    - converge
+  destroy_sequence:
+    - dependency
+    - cleanup
+    - destroy
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
+verifier:
+  name: ansible
+  enabled: true
+
