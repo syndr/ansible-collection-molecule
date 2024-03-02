@@ -1,5 +1,5 @@
 ---
-role_name_check: true
+role_name_check: 0
 dependency:
   name: galaxy
 driver:
@@ -19,7 +19,9 @@ provisioner:
   playbooks:
     prepare: prepare.yml
     converge: converge.yml
+    side_effect: side_effect.yml
     verify: verify.yml
+    cleanup: cleanup.yml
   config_options:
     defaults:
       gathering: explicit

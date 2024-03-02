@@ -25,7 +25,7 @@
       ansible.builtin.debug:
         msg: "IE: adding system users, installing required packages, etc."
 
-    - name: Save vars to host (IE: generated test credentials, etc.)
+    - name: "Save vars to host (IE: generated test credentials, etc.)"
       become: true
       block:
         - name: Ansible facts directory exists
@@ -36,10 +36,13 @@
             group: root
             mode: 0744
 
-        - name: Prep data saved to local Ansible facts
+{% raw %}
+        - name: Persistent data saved to local Ansible facts
           ansible.builtin.copy:
             dest: /etc/ansible/facts.d/molecule.fact
-            content: "\{\{ {'test_prepare_fact': 'this is a demo!'} | to_json \}\}"
+            content: "{{ {'test_prepare_fact': 'this is a demo!'} | to_json }}"
             owner: root
             group: root
             mode: 0644
+{% endraw %}
+

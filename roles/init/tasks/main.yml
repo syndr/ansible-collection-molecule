@@ -6,6 +6,7 @@
     src: "{{ role_path }}/templates/{{ init__item }}.j2"
     dest: "{{ init_scenario_dir }}/{{ init__item }}"
     mode: 0644
+    backup: "{{ init_file_backup }}"
   loop:
     - molecule.yml
     - collections.yml
@@ -14,15 +15,18 @@
   loop_control:
     loop_var: init__item
 
-- name: Deploy playbook
+- name: Deploy file
   ansible.builtin.copy:
     src: "{{ role_path }}/files/{{ init__item }}"
     dest: "{{ init_scenario_dir }}/{{ init__item }}"
     mode: 0644
+    backup: "{{ init_file_backup }}"
   loop:
     - create.yml
     - converge.yml
+    - side_effect.yml
     - verify.yml
+    - cleanup.yml
     - destroy.yml
   loop_control:
     loop_var: init__item

@@ -1,4 +1,7 @@
 ---
+# Verify that the target code runs successfullly.
+# Note that this playbook (converge.yml) must be idempotent!
+
 # Check that the molecule inventory is correctly configured
 - name: Fail if molecule group is missing
   hosts: localhost
@@ -43,10 +46,7 @@
           ansible.builtin.set_fact:
             test_prepare_fact: "{{ ansible_local.molecule.test_prepare_fact }}"
 
-    # Note that this playbook (converge.yml) must be idempotent!
     - name: Add your role test configuration here
-      ansible.builtin.include_role:
-        name: your_role_name
-      vars:
-        your_role_var: test value
+      ansible.builtin.debug:
+        msg: Typically this will be via the ansible.builtin.include_role module
 
