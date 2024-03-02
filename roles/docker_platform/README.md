@@ -6,7 +6,10 @@ Create a docker-based test platform for Molecule.
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+1. Molecule should be installed and executable from a location in the users PATH
+1. Ansible should be installed, with `ansible-playbook` executable via the users PATH
+1. Docker should be installed
+1. The current user should be a member of the `docker` group
 
 Role Variables
 --------------
@@ -57,7 +60,8 @@ Molecule variables expected:
 Dependencies
 ------------
 
-TBA
+**Collections**
+- community.docker
 
 Example Playbook
 ----------------

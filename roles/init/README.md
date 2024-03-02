@@ -3,14 +3,21 @@ syndr.molecule.init
 
 Initialize the Molecule testing framework for a project.
 
+# Usage
+
 To use this role, do the following:
 
-* Create the default molecule scenario directory  
+## Create the molecule scenario directory
+
 ```bash
 mkdir -p extensions/molecule/default
 ```
 
-* Within the new scenario directory (default), create a file `init.yml` containing the example playbook from this README.
+## Create the init playbook
+
+Within the new scenario directory (default), create a file `init.yml` containing the example playbook from this README.
+
+Configuration variables for the `init` role can be customized as desired.
 
 You should now have a directory structure similar to the following:
 ```
@@ -29,7 +36,8 @@ ansible-role-users
 └── vars
 ```
 
-* Run the `init.yml` playbook  
+## Run the init playbook
+
 ```bash
 ansible-playbook extensions/molecule/default/init.yml
 ```
@@ -55,9 +63,10 @@ ansible-role-users
 [...]
 ```
 
-* Run Molecule to verify initial setup
+## Run Molecule to verify initial setup
 
-Your base molecule scenario should now be deployed and ready to use. To verify this, you can run molecule against the new scenario:  
+Your base molecule scenario should now be deployed and ready to use. To verify this, you can run molecule against the new scenario:
+
 ```bash
 cd extensions
 molecule test
@@ -68,7 +77,8 @@ Note: The `molecule` command must be run from within the extensions directory. F
 molecule test -s my_other_scenario
 ```
 
-Molecule should run through its test process and exit successfully. Success should be apparent from the lack of red text in the output, but can also be verified from the shell by checking the exit code of the `molecule` command:  
+Molecule should run through its test process and exit successfully. Success should be apparent from the lack of red text in the output, but can also be verified from the shell by checking the exit code of the `molecule` command:
+
 ```bash
 ❯ echo $?                                         
 0

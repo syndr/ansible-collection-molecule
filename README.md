@@ -2,7 +2,7 @@
 
 This collection is intended to facilitate the creation and use of test environments using the Ansible [Molecule project](https://ansible.readthedocs.io/projects/molecule/).
 
-It provides tooling to create Molecule testing scenarios via the `syndr.molecule.init` role, and test platforms via the `syndr.molecule.docker_platform` role.
+It provides tooling to create Molecule testing scenarios via the `init` role, and test platforms via the `docker_platform` role.
 
 When utilizing an image with systemd support (systemd packages are installed, etc.), the `docker_platform` role supports the creation of Docker containers with a functional Systemd implementation, which can be used to test Ansible code that makes use of Systemd services or related functionality.
 
