@@ -8,7 +8,8 @@ This can be used on a workstation for development purposes, or in the context of
 Requirements
 ------------
 
-None
+Project formats currently supported by this role are:
+- `role`
 
 Role Variables
 --------------
