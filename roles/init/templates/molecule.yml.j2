@@ -25,7 +25,9 @@ provisioner:
   config_options:
     defaults:
       gathering: explicit
-      vault_password_file: ~/.ansible/molecule-ci.pw
+{% if init_ansible_secret_path is truthy %}
+      vault_password_file: {{ init_ansible_secret_path }}
+{% endif %}
       verbosity: 0
 scenario:
   create_sequence:

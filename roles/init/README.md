@@ -107,7 +107,7 @@ init_scenario_dir: "{{ molecule_scenario_directory | default(playbook_dir) }}"
 init_project_dir: "{{ init_scenario_dir.split('/')[:-3] | join('/') }}"
 
 # The container image that should be used for this platform
-#  - note that variable substitution can be used as described here: https://ansible.readthedocs.io/projects/molecule/configuration/#variable-substitution
+#  - Variable substitution can be used as described here: https://ansible.readthedocs.io/projects/molecule/configuration/#variable-substitution
 init_platform_image: "geerlingguy/docker-${MOLECULE_DISTRO:-rockylinux9}-ansible:latest"
 
 # Does the specified image include SystemD support?
@@ -115,6 +115,11 @@ init_platform_systemd: true
 
 # Create backups of any files that would be clobbered by running this role
 init_file_backup: true
+
+# Path to the ansible secret file that should be used by the Molecule test
+#  - Variable substitution can be used as described here: https://ansible.readthedocs.io/projects/molecule/configuration/#variable-substitution
+#  - Set to "" to disable
+init_ansible_secret_path: ""
 ```
 
 Dependencies
