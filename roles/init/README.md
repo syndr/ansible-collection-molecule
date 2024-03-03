@@ -10,7 +10,7 @@ To use this role, do the following:
 ## Create the molecule scenario directory
 
 ```bash
-mkdir -p extensions/molecule/default
+mkdir -p molecule/default
 ```
 
 ## Create the init playbook
@@ -23,10 +23,9 @@ You should now have a directory structure similar to the following:
 ```
 ansible-role-users
 ├── defaults
-├── extensions
-│   └── molecule
-│       └── default
-│           └── init.yml
+├── molecule
+│   └── default
+│       └── init.yml
 ├── handlers
 ├── LICENSE
 ├── meta
@@ -39,25 +38,24 @@ ansible-role-users
 ## Run the init playbook
 
 ```bash
-ansible-playbook extensions/molecule/default/init.yml
+ansible-playbook molecule/default/init.yml
 ```
 
 You should now see that additional configuration has been added to the `default` scenario directory:  
 ```
 ansible-role-users
 ├── defaults
-├── extensions
-│   └── molecule
-│       └── default
-│           ├── collections.yml
-│           ├── converge.yml
-│           ├── create.yml
-│           ├── destroy.yml
-│           ├── init.yml
-│           ├── molecule.yml
-│           ├── prepare.yml
-│           ├── requirements.yml
-│           └── verify.yml
+├── molecule
+│   └── default
+│       ├── collections.yml
+│       ├── converge.yml
+│       ├── create.yml
+│       ├── destroy.yml
+│       ├── init.yml
+│       ├── molecule.yml
+│       ├── prepare.yml
+│       ├── requirements.yml
+│       └── verify.yml
 ├── handlers
 ├── LICENSE
 [...]
@@ -68,7 +66,6 @@ ansible-role-users
 Your base molecule scenario should now be deployed and ready to use. To verify this, you can run molecule against the new scenario:
 
 ```bash
-cd extensions
 molecule test
 ```
 
@@ -103,8 +100,8 @@ init_project_type: role
 init_scenario_dir: "{{ molecule_scenario_directory | default(playbook_dir) }}"
 
 # The filesystem location of the project being tested by this Molecule configuration
-#  - default value assumes that your Molecule project is located at <project dir>/extensions/molecule/<scenario>
-init_project_dir: "{{ init_scenario_dir.split('/')[:-3] | join('/') }}"
+#  - default value assumes that your Molecule project is located at <project dir>/molecule/<scenario>
+init_project_dir: "{{ init_scenario_dir.split('/')[:-2] | join('/') }}"
 
 # The container image that should be used for this platform
 #  - Variable substitution can be used as described here: https://ansible.readthedocs.io/projects/molecule/configuration/#variable-substitution

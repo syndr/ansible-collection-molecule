@@ -16,8 +16,8 @@ Role Variables
 
 ```yaml
 # The filesystem location of the project being tested by this Molecule configuration
-#  - default value assumes that your Molecule project is located at <project dir>/extensions/molecule/<scenario>
-prepare_controller_project_dir: "{{ molecule_scenario_directory.split('/')[:-3] | join('/') }}"
+#  - default value assumes that your Molecule project is located at <project dir>/molecule/<scenario>
+prepare_controller_project_dir: "{{ molecule_scenario_directory.split('/')[:-2] | join('/') }}"
 
 # The working directory to which the current project should be linked
 #  - used for running tests against roles that are not located in the default system locations
