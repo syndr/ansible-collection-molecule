@@ -8,24 +8,29 @@ This can be used on a workstation for development purposes, or in the context of
 Requirements
 ------------
 
-Project formats currently supported by this role are:
-- `role`
+Project formats currently supported by this role are:  
+* `role`
 
 Role Variables
 --------------
 
 ```yaml
 # The filesystem location of the project being tested by this Molecule configuration
-#  - default value assumes that your Molecule project is located at <project dir>/extensions/molecule/<scenario>
-prepare_controller_project_dir: "{{ molecule_scenario_directory.split('/')[:-3] | join('/') }}"
+#  - default value assumes that your Molecule project is located at <project dir>/molecule/<scenario>
+prepare_controller_project_dir: "{{ molecule_scenario_directory.split('/')[:-2] | join('/') }}"
 
 # The working directory to which the current project should be linked
 #  - used for running tests against roles that are not located in the default system locations
-#    IE: within a git project directory or monorepo
+#    IE: within a git project directory or monolith
 prepare_controller_role_dir: "{{ molecule_ephemeral_directory }}/roles"
 
+# The working directory to which the current project should be linked
+#  - used for running tests against projects that are not located in the default system locations
+#    IE: within a git project directory or monolith
+prepare_controller_collection_dir: "{{ molecule_ephemeral_directory }}/collections"
+
 # Type of Ansible project which will be tested by this Molecule deployment
-prepare_controller_project_type: role
+prepare_controller_project_type: auto
 ```
 
 Dependencies

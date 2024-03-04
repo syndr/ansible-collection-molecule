@@ -5,6 +5,11 @@
     # Number of times this role has been included during this playbook run
     docker_platform__run_count: "{{ docker_platform__run_count | default(0) + 1 }}"
 
+- name: Load system facts
+  ansible.builtin.setup:
+    filter:
+      - ansible_service_mgr
+
 - name: Create instance docker container
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/create.yml"
 
