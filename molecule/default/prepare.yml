@@ -7,7 +7,7 @@
       ansible.builtin.include_role:
         name: syndr.molecule.prepare_controller
       vars:
-        prepare_controller_project_type: {{ init_project_type }}
+        prepare_controller_project_type: collection
 
 - name: Prepare target host for execution
   hosts: molecule
@@ -27,7 +27,7 @@
             group: root
             mode: 0744
 
-{% raw %}
+
         - name: Persistent data saved to local Ansible facts
           ansible.builtin.copy:
             dest: /etc/ansible/facts.d/molecule.fact
@@ -35,5 +35,4 @@
             owner: root
             group: root
             mode: 0644
-{% endraw %}
 

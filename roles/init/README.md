@@ -5,7 +5,9 @@ Initialize the Molecule testing framework for a project.
 
 # Usage
 
-To use this role, do the following:
+This role will primarily be run directly via the `ansible-playbook` command in order to bootstrap a test environment.
+
+The following are instructions on how to do so.
 
 ## Create the molecule scenario directory
 
@@ -17,7 +19,12 @@ mkdir -p molecule/default
 
 Within the new scenario directory (default), create a file `init.yml` containing the example playbook from this README.
 
-Configuration variables for the `init` role can be customized as desired.
+Alternatively, you can run:
+```bash
+wget -P molecule/default https://github.com/syndr/ansible-collection-molecule/blob/main/roles/init/files/init.yml
+```
+
+Configuration variables for the `init` role launched by this playbook can be customized as desired.
 
 You should now have a directory structure similar to the following:
 ```
@@ -84,17 +91,17 @@ Molecule should run through its test process and exit successfully. Success shou
 Requirements
 ------------
 
-1. Molecule should be installed and executable from a location in the users PATH
-1. Ansible should be installed, with `ansible-playbook` executable via the users PATH
-1. Docker should be installed
-1. The current user should be a member of the `docker` group
+* Molecule should be installed and executable from a location in the users PATH
+* Ansible should be installed, with `ansible-playbook` executable via the users PATH
+* Docker should be installed
+* The current user should be a member of the `docker` group
 
 Role Variables
 --------------
 
 ```yaml
 # The type of project that this Molecule configuration will be integrated into
-init_project_type: role
+init_project_type: auto
 
 # Filesystem location of the molecule scenario being initialized
 init_scenario_dir: "{{ molecule_scenario_directory | default(playbook_dir) }}"
@@ -105,10 +112,24 @@ init_project_dir: "{{ init_scenario_dir.split('/')[:-2] | join('/') }}"
 
 # The container image that should be used for this platform
 #  - Variable substitution can be used as described here: https://ansible.readthedocs.io/projects/molecule/configuration/#variable-substitution
-init_platform_image: "geerlingguy/docker-${MOLECULE_DISTRO:-rockylinux9}-ansible:latest"
+init_platform_image: "geerlingguy/docker-${MOLECULE_GEERLINGGUY_DISTRO:-rockylinux9}-ansible:latest"
 
 # Does the specified image include SystemD support?
 init_platform_systemd: true
+
+# Platforms that this test configuration should test
+#  list of dicts, each required to contain:
+#    name: (string)
+#    image: (string, container image path)
+#  and optionally containing:
+#    systemd: (true/false)
+#    modify_image: (true/false)
+#    modify_image_buildpath: (string) # path to directory containing Dockerfile
+#    privileged: (true/false)
+init_platforms:
+  - name: instance
+    image: "geerlingguy/docker-${MOLECULE_GEERLINGGUY_DISTRO:-rockylinux9}-ansible:latest"
+    systemd: true
 
 # Create backups of any files that would be clobbered by running this role
 init_file_backup: true
@@ -123,8 +144,8 @@ Dependencies
 ------------
 
 **Collections**  
-- community.docker
-- syndr.molecule
+* community.docker
+* syndr.molecule
 
 Example Playbook
 ----------------
@@ -140,7 +161,7 @@ Example Playbook
       ansible.builtin.include_role:
         name: syndr.molecule.init
       vars:
-        init_project_type: role
+        init_project_type: auto
         init_platform_image: "geerlingguy/docker-${MOLECULE_DISTRO:-rockylinux9}-ansible:latest"
         init_platform_systemd: true
 ```

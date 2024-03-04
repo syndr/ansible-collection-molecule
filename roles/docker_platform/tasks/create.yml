@@ -94,4 +94,31 @@
     docker_platform__create_result.container.State.ExitCode != 0 or
     not docker_platform__create_result.container.State.Running
 
+- name: Systemd status is healthy
+  block:
+    - name: System service manager is Systemd
+      ansible.builtin.assert:
+        that:
+          - "ansible_service_mgr == 'systemd'"
+        fail_msg: Systemd is enabled, but container service manager isn't Systemd! Is this a Systemd-enabled container?
+
+    - name: Systemd has completed initialization
+      ansible.builtin.command:
+        cmd: systemctl is-system-running
+      register: docker_platform__systemctl_status
+      until: >
+        'running' in docker_platform__systemctl_status.stdout or
+        'degraded' in docker_platform__systemctl_status.stdout
+      retries: 30
+      delay: 5
+      changed_when: false
+      failed_when: docker_platform__systemctl_status.rc > 1
+
+    - name: System is healthy
+      ansible.builtin.assert:
+        that:
+          - "'running' in docker_platform__systemctl_status.stdout"
+        success_msg: Systemd is healthy
+        fail_msg: Systemd is unhealthy
+  when: docker_platform_systemd
 

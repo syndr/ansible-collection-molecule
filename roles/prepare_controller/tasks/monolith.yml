@@ -1,0 +1,9 @@
+---
+# Configure molecule to run in the context of a monolith
+
+- name: Monolith controller configuration detected!
+  ansible.builtin.debug:
+    msg: Make sure that you have run the molecule.init role to configure Molecule for this repository!
+
+# TODO: Actually check that the init settings are set
+

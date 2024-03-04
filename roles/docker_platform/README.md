@@ -60,7 +60,7 @@ Molecule variables expected:
 Dependencies
 ------------
 
-**Collections**
+**Collections**  
 - community.docker
 
 Example Playbook

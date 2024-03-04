@@ -1,6 +1,17 @@
 ---
 # tasks file for init
 
+- name: Autodetect repository type
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/auto.yml"
+  when: init_project_type == 'auto'
+
+- name: Deploy molecule configuration
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/molecule.yml.j2"
+    dest: "{{ init_scenario_dir }}/molecule.yml"
+    mode: 0644
+    backup: "{{ init_file_backup }}"
+
 - name: Deploy template
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ init__item }}.j2"
@@ -8,7 +19,6 @@
     mode: 0644
     backup: "{{ init_file_backup }}"
   loop:
-    - molecule.yml
     - collections.yml
     - requirements.yml
     - prepare.yml
