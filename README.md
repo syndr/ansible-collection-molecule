@@ -1,5 +1,7 @@
 # Ansible Collection - syndr.molecule
 
+[![Molecule Test](https://github.com/syndr/ansible-collection-molecule/actions/workflows/main.yml/badge.svg)](https://github.com/syndr/ansible-collection-molecule/actions/workflows/main.yml)
+
 This collection facilitates the creation and use of test environments using the Ansible [Molecule project](https://ansible.readthedocs.io/projects/molecule/).
 
 It provides tooling to create Molecule testing scenarios via the `init` role, and test platforms via the `docker_platform` role, among others.
