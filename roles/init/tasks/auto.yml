@@ -4,42 +4,42 @@
 - name: Check for role meta configuration
   ansible.builtin.stat:
     path: "{{ init_project_dir }}/meta/main.yml"
-  register: init__rolepath_stat
+  register: __init_rolepath_stat
 
 - name: Check for collection Galaxy configuration
   ansible.builtin.stat:
     path: "{{ init_project_dir }}/galaxy.yml"
-  register: init__collectionpath_stat
+  register: __init_collectionpath_stat
 
 - name: Check for monolith
   block:
     - name: Check for top-level roles directory
       ansible.builtin.stat:
         path: "{{ init_project_dir }}/roles"
-      register: init__monoroles_stat
+      register: __init_monoroles_stat
 
     - name: Check for top-level playbooks directory
       ansible.builtin.stat:
         path: "{{ init_project_dir }}/playbooks"
-      register: init__monoplaybooks_stat
+      register: __init_monoplaybooks_stat
 
     - name: Monolith repository detected
       ansible.builtin.set_fact:
-        init__monolith: true
+        __init_monolith: true
       when:
-        - init__monoroles_stat.stat.exists is true
-        - init__monoplaybooks_stat.stat.exists is true
+        - __init_monoroles_stat.stat.exists is true
+        - __init_monoplaybooks_stat.stat.exists is true
 
 - name: Perform convergence dance
   block:
     - name: Detect crossed streams
       ansible.builtin.assert:
-        that: init__rolepath_stat.stat.exists is true and
-            init__collectionpath_stat.stat.exists is false and
-            init__monolith is false or
-            init__collectionpath_stat.stat.exists is true or
-            init__monolith is true and
-            init__rolepath_stat.stat.exists is false
+        that: __init_rolepath_stat.stat.exists is true and
+            __init_collectionpath_stat.stat.exists is false and
+            __init_monolith is false or
+            __init_collectionpath_stat.stat.exists is true or
+            __init_monolith is true and
+            __init_rolepath_stat.stat.exists is false
         success_msg: Known repository format detected!
         fail_msg: No known repository type detected. 😵
 
@@ -47,21 +47,21 @@
       ansible.builtin.set_fact:
         init_project_type: role
       when:
-          - init__rolepath_stat.stat.exists is true
-          - init__collectionpath_stat.stat.exists is false
-          - init__monolith is false
+          - __init_rolepath_stat.stat.exists is true
+          - __init_collectionpath_stat.stat.exists is false
+          - __init_monolith is false
 
     - name: Collection repository detected
       ansible.builtin.set_fact:
         init_project_type: collection
-      when: init__collectionpath_stat.stat.exists is true
+      when: __init_collectionpath_stat.stat.exists is true
 
     - name: Monolith repository detected
       ansible.builtin.set_fact:
         init_project_type: monolith
       when:
-        - init__monolith is true
-        - init__rolepath_stat.stat.exists is false
+        - __init_monolith is true
+        - __init_rolepath_stat.stat.exists is false
 
 - name: Autodetection succeeded
   ansible.builtin.assert:
@@ -69,9 +69,4 @@
       - init_project_type != 'auto'
     fail_msg: Autodetection of repository type failed!
 
-- name: Repository type supported
-  ansible.builtin.assert:
-    that:
-      - init_project_type != 'monolith'
-    fail_msg: Monolith type repositories are not yet supported!
 

@@ -10,7 +10,7 @@
     - name: Check build path
       ansible.builtin.stat:
         path: "{{ docker_platform_modify_image_buildpath }}"
-      register: docker_platform__buildpath_stat
+      register: __docker_platform_buildpath_stat
 
     - name: Build directory doesn't exist
       block:
@@ -22,23 +22,23 @@
 
         - name: Copy templates
           ansible.builtin.template:
-            src: templates/{{ docker_platform__item }}
-            dest: "{{ docker_platform_modify_image_buildpath}}/{{ docker_platform__item | regex_replace('\\.j2$', '') }}"
+            src: templates/{{ __docker_platform_item }}
+            dest: "{{ docker_platform_modify_image_buildpath}}/{{ __docker_platform_item | regex_replace('\\.j2$', '') }}"
           loop:
             - bash.service.j2
             - entrypoint.sh.j2
             - Dockerfile.j2
           loop_control:
-            loop_var: docker_platform__item
-      when: docker_platform__buildpath_stat.stat.exists is false
+            loop_var: __docker_platform_item
+      when: __docker_platform_buildpath_stat.stat.exists is false
 
     - name: Build local image name
       ansible.builtin.set_fact:
-        docker_platform__built_image_name: "molecule-local-build/{{ docker_platform_image | split(':') | first | split('/') | last }}-custom"
+        __docker_platform_built_image_name: "molecule-local-build/{{ docker_platform_image | split(':') | first | split('/') | last }}-custom"
 
     - name: Docker image is built
       community.docker.docker_image:
-        name: "{{ docker_platform__built_image_name }}"
+        name: "{{ __docker_platform_built_image_name }}"
         build:
           path: "{{ docker_platform_modify_image_buildpath }}"
           cache_from: "{{ docker_platform_image }}"
@@ -55,14 +55,14 @@
 
 - name: Build docker volume list
   ansible.builtin.set_fact:
-    docker_platform__volume_list: "{{ docker_platform_volumes + ['/sys/fs/cgroup/molecule-ci.scope:/sys/fs/cgroup:rw']
+    __docker_platform_volume_list: "{{ docker_platform_volumes + ['/sys/fs/cgroup/molecule-ci.scope:/sys/fs/cgroup:rw']
       if docker_platform_systemd
       else docker_platform_volumes }}"
 
 - name: Runtime docker container is present and running
   community.docker.docker_container:
     name: "{{ docker_platform_name }}"
-    image: "{{ docker_platform__built_image_name | default(docker_platform_image) }}"
+    image: "{{ __docker_platform_built_image_name | default(docker_platform_image) }}"
     state: started
     command: "{{ docker_platform_command }}"
     log_driver: json-file
@@ -71,28 +71,28 @@
     cgroupns_mode: "{{ 'host' if docker_platform_systemd is true else 'private' }}"
     privileged: "{{ docker_platform_privileged }}"
     tmpfs: "{{ docker_platform_tmpfs + ['/run'] if docker_platform_systemd else docker_platform_tmpfs }}"
-    volumes: "{{ docker_platform__volume_list }}"
-  register: docker_platform__create_result
+    volumes: "{{ __docker_platform_volume_list }}"
+  register: __docker_platform_create_result
 
 - name: Print some info
   ansible.builtin.debug:
-    msg: "{{ docker_platform__create_result }}"
+    msg: "{{ __docker_platform_create_result }}"
     verbosity: 1
 
 - name: Fail if container is not running
   block:
     - name: Retrieve container log
       ansible.builtin.command:
-        cmd: docker logs {{ docker_platform__create_result.container.Name }}
+        cmd: docker logs {{ __docker_platform_create_result.container.Name }}
       changed_when: false
-      register: docker_platform__logfile_cmd
+      register: __docker_platform_logfile_cmd
 
     - name: Display container log
       ansible.builtin.fail:
-        msg: "{{ docker_platform__logfile_cmd.stdout ~  docker_platform__logfile_cmd.stderr }}"
+        msg: "{{ __docker_platform_logfile_cmd.stdout ~  __docker_platform_logfile_cmd.stderr }}"
   when: >
-    docker_platform__create_result.container.State.ExitCode != 0 or
-    not docker_platform__create_result.container.State.Running
+    __docker_platform_create_result.container.State.ExitCode != 0 or
+    not __docker_platform_create_result.container.State.Running
 
 - name: Systemd status is healthy
   block:
@@ -105,19 +105,19 @@
     - name: Systemd has completed initialization
       ansible.builtin.command:
         cmd: systemctl is-system-running
-      register: docker_platform__systemctl_status
+      register: __docker_platform_systemctl_status
       until: >
-        'running' in docker_platform__systemctl_status.stdout or
-        'degraded' in docker_platform__systemctl_status.stdout
+        'running' in __docker_platform_systemctl_status.stdout or
+        'degraded' in __docker_platform_systemctl_status.stdout
       retries: 30
       delay: 5
       changed_when: false
-      failed_when: docker_platform__systemctl_status.rc > 1
+      failed_when: __docker_platform_systemctl_status.rc > 1
 
     - name: System is healthy
       ansible.builtin.assert:
         that:
-          - "'running' in docker_platform__systemctl_status.stdout"
+          - "'running' in __docker_platform_systemctl_status.stdout"
         success_msg: Systemd is healthy
         fail_msg: Systemd is unhealthy
   when: docker_platform_systemd

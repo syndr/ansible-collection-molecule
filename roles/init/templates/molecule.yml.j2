@@ -30,7 +30,7 @@ provisioner:
   config_options:
     defaults:
       gathering: explicit
-{% if init__monolith %}
+{% if __init_monolith %}
       roles_path: {{ init_project_dir }}/roles
       collections_path: {{ init_project_dir }}/collections
       playbook_vars_root: top

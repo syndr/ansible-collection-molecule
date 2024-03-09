@@ -2,5 +2,5 @@
 # vars file for init
 
 # Assume that we are not operating in a monolith to start
-init__monolith: false
+__init_monolith: false
 

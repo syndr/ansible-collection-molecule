@@ -3,7 +3,7 @@
 - name: Initialize state
   ansible.builtin.set_fact:
     # Number of times this role has been included during this playbook run
-    docker_platform__run_count: "{{ docker_platform__run_count | default(0) + 1 }}"
+    __docker_platform_run_count: "{{ __docker_platform_run_count | default(0) + 1 }}"
 
 - name: Load system facts
   ansible.builtin.setup:
@@ -18,20 +18,20 @@
     - name: Load existing instance configuration file
       ansible.builtin.slurp:
         src: "{{ docker_platform_molecule_ephemeral_directory }}/instance_config.yml"
-      register: docker_platform__current_instance_config_b64
+      register: __docker_platform_current_instance_config_b64
       ignore_errors: true
 
     - name: Decode instance configuration data
       ansible.builtin.set_fact:
-        docker_platform__current_instance_config: "{{ docker_platform__current_instance_config_b64.content | default('') | b64decode | from_yaml }}"
-  when: docker_platform__run_count | int > 1
+        __docker_platform_current_instance_config: "{{ __docker_platform_current_instance_config_b64.content | default('') | b64decode | from_yaml }}"
+  when: __docker_platform_run_count | int > 1
 
 - name: Write instance config file
   ansible.builtin.copy:
     # This is very basic - just needs an item there to show as managed with docker config
     content: |
-      {% if docker_platform__current_instance_config is defined %}
-      {{ docker_platform__current_instance_config | to_yaml }}
+      {% if __docker_platform_current_instance_config is defined %}
+      {{ __docker_platform_current_instance_config | to_yaml }}
       {% endif %}
       - instance: {{ docker_platform_name }}
         connection: docker
@@ -43,17 +43,17 @@
     - name: Load existing molecule inventory file
       ansible.builtin.slurp:
         src: "{{ docker_platform_molecule_ephemeral_directory }}/molecule_inventory.yml"
-      register: docker_platform__current_molecule_inventory_b64
+      register: __docker_platform_current_molecule_inventory_b64
       ignore_errors: true
 
     - name: Decode instance configuration data
       ansible.builtin.set_fact:
-        docker_platform__current_molecule_inventory: "{{ docker_platform__current_molecule_inventory_b64.content | default({}) | b64decode | from_yaml }}"
-  when: docker_platform__run_count | int > 1
+        __docker_platform_current_molecule_inventory: "{{ __docker_platform_current_molecule_inventory_b64.content | default({}) | b64decode | from_yaml }}"
+  when: __docker_platform_run_count | int > 1
 
 - name: Add container to molecule_inventory
   vars:
-    docker_platform__inventory_partial_yaml: |
+    __docker_platform_inventory_partial_yaml: |
       all:
         children:
           molecule:
@@ -61,13 +61,13 @@
               "{{ docker_platform_name }}":
                 ansible_connection: community.docker.docker
   ansible.builtin.set_fact:
-    docker_platform__molecule_inventory: >
-      {{ docker_platform__current_molecule_inventory | default({}) | combine(docker_platform__inventory_partial_yaml | from_yaml, recursive=true) }}
+    __docker_platform_molecule_inventory: >
+      {{ __docker_platform_current_molecule_inventory | default({}) | combine(__docker_platform_inventory_partial_yaml | from_yaml, recursive=true) }}
 
 - name: Write molecule inventory file
   ansible.builtin.copy:
     content: |
-      {{ docker_platform__molecule_inventory | to_yaml }}
+      {{ __docker_platform_molecule_inventory | to_yaml }}
     dest: "{{ docker_platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
     mode: "0600"
 

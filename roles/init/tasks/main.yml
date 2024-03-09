@@ -14,8 +14,8 @@
 
 - name: Deploy template
   ansible.builtin.template:
-    src: "{{ role_path }}/templates/{{ init__item }}.j2"
-    dest: "{{ init_scenario_dir }}/{{ init__item }}"
+    src: "{{ role_path }}/templates/{{ __init_item }}.j2"
+    dest: "{{ init_scenario_dir }}/{{ __init_item }}"
     mode: 0644
     backup: "{{ init_file_backup }}"
   loop:
@@ -23,12 +23,12 @@
     - requirements.yml
     - prepare.yml
   loop_control:
-    loop_var: init__item
+    loop_var: __init_item
 
 - name: Deploy file
   ansible.builtin.copy:
-    src: "{{ role_path }}/files/{{ init__item }}"
-    dest: "{{ init_scenario_dir }}/{{ init__item }}"
+    src: "{{ role_path }}/files/{{ __init_item }}"
+    dest: "{{ init_scenario_dir }}/{{ __init_item }}"
     mode: 0644
     backup: "{{ init_file_backup }}"
   loop:
@@ -39,5 +39,5 @@
     - cleanup.yml
     - destroy.yml
   loop_control:
-    loop_var: init__item
+    loop_var: __init_item
 

@@ -6,12 +6,12 @@
     - name: Load role meta file
       ansible.builtin.include_vars:
         file: "{{ prepare_controller_project_dir }}/meta/main.yml"
-        name: prepare_controller__project_meta
+        name: __prepare_controller_project_meta
 
     - name: Role name is defined
       ansible.builtin.assert:
         that:
-          - prepare_controller__project_meta.galaxy_info.role_name is defined
+          - __prepare_controller_project_meta.galaxy_info.role_name is defined
         fail_msg: This configuration requires the role_name meta variable to be defined!
         success_msg: Role meta configuration passed!
   rescue:
@@ -28,6 +28,6 @@
 - name: Link current repository to roles working directory
   ansible.builtin.file:
     src: "{{ prepare_controller_project_dir }}"
-    dest: "{{ prepare_controller_role_dir }}/{{ prepare_controller__project_meta.galaxy_info.role_name }}"
+    dest: "{{ prepare_controller_role_dir }}/{{ __prepare_controller_project_meta.galaxy_info.role_name }}"
     state: link
 

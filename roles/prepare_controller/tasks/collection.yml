@@ -6,23 +6,23 @@
     - name: Load collection config file
       ansible.builtin.include_vars:
         file: "{{ prepare_controller_project_dir }}/galaxy.yml"
-        name: prepare_controller__project_meta
+        name: __prepare_controller_project_meta
 
     - name: Collection information loaded
       ansible.builtin.assert:
         that:
-          - prepare_controller__project_meta.namespace is defined
-          - prepare_controller__project_meta.namespace is truthy
-          - prepare_controller__project_meta.name is defined
-          - prepare_controller__project_meta.name is truthy
-          - prepare_controller__project_meta.version is defined
-          - prepare_controller__project_meta.name is truthy
+          - __prepare_controller_project_meta.namespace is defined
+          - __prepare_controller_project_meta.namespace is truthy
+          - __prepare_controller_project_meta.name is defined
+          - __prepare_controller_project_meta.name is truthy
+          - __prepare_controller_project_meta.version is defined
+          - __prepare_controller_project_meta.name is truthy
         fail_msg: Collection configuration data missing!
         success_msg: Collection Galaxy configuration passed!
 
     - name: Generate collection path
       ansible.builtin.set_fact:
-        prepare_controller__collection_internal_dir: "{{ prepare_controller_collection_dir }}/ansible_collections/{{ prepare_controller__project_meta.namespace }}"
+        __prepare_controller_collection_internal_dir: "{{ prepare_controller_collection_dir }}/ansible_collections/{{ __prepare_controller_project_meta.namespace }}"
   rescue:
     - name: Configuration error
       ansible.builtin.fail:
@@ -34,13 +34,13 @@
 #  block:
 #    - name: Collection namespace directory exists
 #      ansible.builtin.file:
-#        path: "{{ prepare_controller__collection_internal_dir }}"
+#        path: "{{ __prepare_controller_collection_internal_dir }}"
 #        state: directory
 #        mode: 0755
 #
 #    - name: Project is linked
 #      ansible.builtin.file:
 #        source: "{{ prepare_controller_project_dir }}"
-#        dest: "{{ prepare_controller__collection_internal_dir }}/{{ prepare_controller__project_meta.name }}"
+#        dest: "{{ __prepare_controller_collection_internal_dir }}/{{ __prepare_controller_project_meta.name }}"
 #        state: link
 
