@@ -11,26 +11,25 @@ init_scenario_dir: "{{ molecule_scenario_directory | default(playbook_dir) }}"
 #  - default value assumes that your Molecule project is located at <project dir>/molecule/<scenario>
 init_project_dir: "{{ init_scenario_dir.split('/')[:-2] | join('/') }}"
 
-# The container image that should be used for this platform
-#  - Variable substitution can be used as described here: https://ansible.readthedocs.io/projects/molecule/configuration/#variable-substitution
-init_platform_image: "geerlingguy/docker-${MOLECULE_GEERLINGGUY_DISTRO:-rockylinux9}-ansible:latest"
-
-# Does the specified image include SystemD support?
-init_platform_systemd: true
-
 # Platforms that this test configuration should test
 #  list of dicts, each required to contain:
 #    name: (string)
-#    image: (string, container image path)
-#  and optionally containing:
-#    systemd: (true/false)
-#    modify_image: (true/false)
-#    modify_image_buildpath: (string)     # path to directory containing Dockerfile
-#    privileged: (true/false)
+#    type: (string)
+#    config: (dictionary, configuration for specified "type")
+#
+#  for example, in the case of the "docker" type:
+#    config:
+#      image: (string, container image path)
+#      systemd: (true/false)
+#      modify_image: (true/false)
+#      modify_image_buildpath: (string)     # path to directory containing Dockerfile
+#      privileged: (true/false)
 init_platforms:
-  - name: instance
-    image: "geerlingguy/docker-${MOLECULE_GEERLINGGUY_DISTRO:-rockylinux9}-ansible:latest"
-    systemd: true
+  - name: docker-rockylinux9
+    type: docker
+    config:
+      image: "geerlingguy/docker-rockylinux9-ansible:latest"
+      systemd: true
 
 # Create backups of any files that would be clobbered by running this role
 init_file_backup: true

@@ -2,5 +2,15 @@
 # vars file for init
 
 # Assume that we are not operating in a monolith to start
-init__monolith: false
+__init_monolith: false
+
+# The project types supported by this role
+__init_supported_project_types:
+  - collection
+  - role
+  - monolith
+
+# The platform types supported by this role
+__init_supported_platform_types:
+  - docker
 

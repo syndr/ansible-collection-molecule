@@ -5,5 +5,24 @@
   ansible.builtin.debug:
     msg: Make sure that you have run the molecule.init role to configure Molecule for this repository!
 
-# TODO: Actually check that the init settings are set
+- name: Check directory paths
+  ansible.builtin.stat:
+    path: "{{ __prepare_controller_item }}"
+  register: __prepare_controller_filepath_stat
+  loop:
+    - collections
+    - roles
+    - playbooks
+  loop_control:
+    loop_var: __prepare_controller_item
+
+- name: Directory exists
+  ansible.builtin.assert:
+    that: __prepare_controller_item.stat.exists is true
+    fail_msg: Required project file layout not found! See README!
+    success_msg: Path is found
+  loop: "{{ __prepare_controller_stat.results }}"
+  loop_control:
+    loop_var: __prepare_controller_item
+    label: "{{ __prepare_controller_item.item }}"
 

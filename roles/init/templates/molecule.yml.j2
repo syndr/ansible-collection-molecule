@@ -10,13 +10,16 @@ driver:
 platforms:
 {% for init_platform in init_platforms %}
   - name: {{ init_platform.name }}
-    image: {{ init_platform.image }}
-    systemd: {{ init_platform.systemd | default(false) }}
-    modify_image: {{ init_platform.modify_image | default(false) }}
-{% if init_platform.modify_image_buildpath is defined %}
-    modify_image_buildpath: {{ init_platform.modify_image_buildpath }}
+    type: {{ init_platform.type }}
+{% if init_platform.type == 'docker' %}
+    image: {{ init_platform.config.image }}
+    systemd: {{ init_platform.config.systemd | default(false) }}
+    modify_image: {{ init_platform.config.modify_image | default(false) }}
+{% if init_platform.config.modify_image_buildpath is defined %}
+    modify_image_buildpath: {{ init_platform.config.modify_image_buildpath }}
 {% endif %}
-    privileged: {{ init_platform.privileged | default(false) }}
+    privileged: {{ init_platform.config.privileged | default(false) }}
+{% endif %}
 {% endfor %}
 provisioner:
   name: ansible
@@ -30,15 +33,16 @@ provisioner:
   config_options:
     defaults:
       gathering: explicit
-{% if init__monolith %}
-      roles_path: {{ init_project_dir }}/roles
-      collections_path: {{ init_project_dir }}/collections
       playbook_vars_root: top
-{% endif %}
+      verbosity: ${ANSIBLE_VERBOSITY:-0}
 {% if init_ansible_secret_path is truthy %}
       vault_password_file: {{ init_ansible_secret_path }}
 {% endif %}
-      verbosity: ${ANSIBLE_VERBOSITY:-0}
+{% if __init_monolith %}
+  env:
+    ANSIBLE_ROLES_PATH: ${PWD}/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
+    ANSIBLE_COLLECTIONS_PATH: ${PWD}/collections:/usr/share/ansible/collections:~/.ansible/collections
+{% endif %}
 scenario:
   create_sequence:
     - dependency
