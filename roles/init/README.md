@@ -96,6 +96,27 @@ Requirements
 * Docker should be installed
 * The current user should be a member of the `docker` group
 
+Configuration
+------------
+
+This role should contain reasonably sane defaults. The most often configured value will most likely be `init_platforms`, which contains a list with each list item containing the configuration for an individual test platform (IE Rocky Linux 9 or Amazon Linux 2023).
+
+For example:
+```yaml
+init_platforms:
+  - name: docker-rocklinux9
+    type: docker
+    config:
+      image: "geerlingguy/docker-rockylinux9-ansible:latest"
+      systemd: true
+```
+
+The name of each platform should be unique, and other Systemd-enabled OS containers can be found [here](https://hub.docker.com/search?q=geerlingguy%2Fdocker-).
+
+Currently supported platform types are:
+
+* [docker](../docker_platform/README.md)
+
 Role Variables
 --------------
 
@@ -110,26 +131,25 @@ init_scenario_dir: "{{ molecule_scenario_directory | default(playbook_dir) }}"
 #  - default value assumes that your Molecule project is located at <project dir>/molecule/<scenario>
 init_project_dir: "{{ init_scenario_dir.split('/')[:-2] | join('/') }}"
 
-# The container image that should be used for this platform
-#  - Variable substitution can be used as described here: https://ansible.readthedocs.io/projects/molecule/configuration/#variable-substitution
-init_platform_image: "geerlingguy/docker-${MOLECULE_GEERLINGGUY_DISTRO:-rockylinux9}-ansible:latest"
-
-# Does the specified image include SystemD support?
-init_platform_systemd: true
-
 # Platforms that this test configuration should test
 #  list of dicts, each required to contain:
 #    name: (string)
-#    image: (string, container image path)
-#  and optionally containing:
-#    systemd: (true/false)
-#    modify_image: (true/false)
-#    modify_image_buildpath: (string) # path to directory containing Dockerfile
-#    privileged: (true/false)
+#    type: (string)
+#    config: (dictionary, configuration for specified "type")
+#
+#  for example, in the case of the "docker" type:
+#    config:
+#      image: (string, container image path)
+#      systemd: (true/false)
+#      modify_image: (true/false)
+#      modify_image_buildpath: (string)     # path to directory containing Dockerfile
+#      privileged: (true/false)
 init_platforms:
-  - name: instance
-    image: "geerlingguy/docker-${MOLECULE_GEERLINGGUY_DISTRO:-rockylinux9}-ansible:latest"
-    systemd: true
+  - name: docker-rocklinux9
+    type: docker
+    config:
+      image: "geerlingguy/docker-rockylinux9-ansible:latest"
+      systemd: true
 
 # Create backups of any files that would be clobbered by running this role
 init_file_backup: true
@@ -162,8 +182,13 @@ Example Playbook
         name: syndr.molecule.init
       vars:
         init_project_type: auto
-        init_platform_image: "geerlingguy/docker-${MOLECULE_DISTRO:-rockylinux9}-ansible:latest"
-        init_platform_systemd: true
+        init_platforms:
+          - name: docker-amazonlinux2023
+            type: docker
+            config:
+              image: geerlingguy/docker-amazonlinux2023-ansible:latest
+              systemd: true
+              privileged: false
 ```
 
 License

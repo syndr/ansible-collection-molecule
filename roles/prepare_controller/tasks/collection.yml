@@ -19,10 +19,6 @@
           - __prepare_controller_project_meta.name is truthy
         fail_msg: Collection configuration data missing!
         success_msg: Collection Galaxy configuration passed!
-
-    - name: Generate collection path
-      ansible.builtin.set_fact:
-        __prepare_controller_collection_internal_dir: "{{ prepare_controller_collection_dir }}/ansible_collections/{{ __prepare_controller_project_meta.namespace }}"
   rescue:
     - name: Configuration error
       ansible.builtin.fail:
@@ -32,6 +28,9 @@
 ## NOTE: Molecule appears to automatically install collections in the default user location on run -- though knowing the details of this would be nice
 #- name: Link project directory
 #  block:
+#    - name: Generate collection path
+#      ansible.builtin.set_fact:
+#        __prepare_controller_collection_internal_dir: "{{ prepare_controller_collection_dir }}/ansible_collections/{{ __prepare_controller_project_meta.namespace }}"
 #    - name: Collection namespace directory exists
 #      ansible.builtin.file:
 #        path: "{{ __prepare_controller_collection_internal_dir }}"

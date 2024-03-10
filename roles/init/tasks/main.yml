@@ -1,6 +1,9 @@
 ---
 # tasks file for init
 
+- name: Check configuration data
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/asserts.yml"
+
 - name: Autodetect repository type
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/auto.yml"
   when: init_project_type == 'auto'

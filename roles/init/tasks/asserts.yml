@@ -1,0 +1,61 @@
+---
+# Make sure everything is sane
+
+- name: Project global configuration is sane
+  ansible.builtin.assert:
+    that:
+      - init_project_type == 'auto' or init_project_type in __init_supported_project_types
+      - init_scenario_dir is string
+      - init_project_dir is string
+      - init_file_backup in [true, false]
+    fail_msg: Global configuration option for init role is not sane
+    success_msg: Sanity check passed
+
+- name: Check for project file paths
+  ansible.builtin.stat:
+    path: "{{ __init_item }}"
+  loop:
+    - "{{ init_scenario_dir }}"
+    - "{{ init_project_dir }}"
+  loop_control:
+    loop_var: __init_item
+  register: __init_filepath_stat
+
+- name: File path exists
+  ansible.builtin.assert:
+    that:
+      - __init_item.stat.exists is true
+    fail_msg: Specified file path does not exist!
+  loop: "{{ __init_filepath_stat.results }}"
+  loop_control:
+    label: "{{ __init_item.item }}"
+    loop_var: __init_item
+
+- name: Check for secret if specified
+  block:
+    - name: Check for vault password file
+      ansible.builtin.stat:
+        path: "{{ init_ansible_secret_path }}"
+      register: __init_secret_stat
+
+    - name: Vault password exsists
+      ansible.builtin.assert:
+        that:
+          - __init_secret_stat.stat.exists is true
+        fail_msg: An Ansible Vault secret has been specified, but the file doesn't exist!
+  when: init_ansible_secret_path is truthy
+
+- name: Platform configuration is sane
+  ansible.builtin.assert:
+    that:
+      - __init_item.name is string
+      - __init_item.name is truthy
+      - __init_item.type in __init_supported_platform_types
+      - __init_item.config is mapping
+    fail_msg: Platform configuration is not sane!
+    success_msg: Sanity check passed
+  loop: "{{ init_platforms }}"
+  loop_control:
+    label: "{{ __init_item.name }}"
+    loop_var: __init_item
+

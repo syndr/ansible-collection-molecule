@@ -34,12 +34,12 @@
         msg: "{{ result.stdout }}"
 {% endraw %}
 
-{% if init_platform_systemd %}
-- name: Validate Systemd status
-  hosts: molecule
-  gather_facts: false
-  tasks:
-    - name: Wait for systemd to complete initialization.  # noqa 303
+    - name: Load system facts
+      ansible.builtin.setup:
+        filters:
+          - ansible_service_mgr
+
+    - name: Wait for systemd to complete initialization.
       ansible.builtin.command: systemctl is-system-running
       register: systemctl_status
       until: >
@@ -50,4 +50,4 @@
       when: ansible_service_mgr == 'systemd'
       changed_when: false
       failed_when: systemctl_status.rc > 1
-{% endif %}
+
