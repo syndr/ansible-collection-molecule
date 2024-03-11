@@ -7,7 +7,7 @@
 
 - name: Check directory paths
   ansible.builtin.stat:
-    path: "{{ __prepare_controller_item }}"
+    path: "{{ prepare_controller_project_dir }}/{{ __prepare_controller_item }}"
   register: __prepare_controller_filepath_stat
   loop:
     - collections
@@ -24,5 +24,4 @@
   loop: "{{ __prepare_controller_filepath_stat.results }}"
   loop_control:
     loop_var: __prepare_controller_item
-    label: "{{ __prepare_controller_item.item }}"
 
