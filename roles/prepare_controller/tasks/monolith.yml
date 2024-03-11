@@ -21,7 +21,7 @@
     that: __prepare_controller_item.stat.exists is true
     fail_msg: Required project file layout not found! See README!
     success_msg: Path is found
-  loop: "{{ __prepare_controller_stat.results }}"
+  loop: "{{ __prepare_controller_filepath_stat.results }}"
   loop_control:
     loop_var: __prepare_controller_item
     label: "{{ __prepare_controller_item.item }}"
