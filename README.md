@@ -1,6 +1,6 @@
-# Ansible Collection - syndr.molecule
+# Ansible Collection - influxdata.molecule
 
-[![Molecule Test](https://github.com/syndr/ansible-collection-molecule/actions/workflows/main.yml/badge.svg)](https://github.com/syndr/ansible-collection-molecule/actions/workflows/main.yml)
+[![Molecule Test](https://github.com/influxdata/ansible-collection-molecule/actions/workflows/main.yml/badge.svg)](https://github.com/influxdata/ansible-collection-molecule/actions/workflows/main.yml)
 
 This collection facilitates the creation and use of test environments using the Ansible [Molecule project](https://ansible.readthedocs.io/projects/molecule/).
 
@@ -138,7 +138,7 @@ collections_path = ./collections:/usr/share/ansible/collections:~/.ansible/colle
 
 or this collection should be installed locally with:  
 ```bash
-ansible-galaxy collection install -p ./collections syndr.molecule
+ansible-galaxy collection install -p ./collections influxdata.molecule
 ```
 
 or if your `collections/requirements.yml` includes this collection:

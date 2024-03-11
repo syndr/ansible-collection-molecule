@@ -6,5 +6,5 @@
   tasks:
     - name: Launch provisioner
       ansible.builtin.include_role:
-        name: syndr.molecule.init
+        name: influxdata.molecule.init
 

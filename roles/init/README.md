@@ -1,4 +1,4 @@
-syndr.molecule.init
+influxdata.molecule.init
 =========
 
 Initialize the Molecule testing framework for a project.
@@ -165,7 +165,7 @@ Dependencies
 
 **Collections**  
 * community.docker
-* syndr.molecule
+* influxdata.molecule
 
 Example Playbook
 ----------------
@@ -179,7 +179,7 @@ Example Playbook
   tasks:
     - name: Launch provisioner
       ansible.builtin.include_role:
-        name: syndr.molecule.init
+        name: influxdata.molecule.init
       vars:
         init_project_type: auto
         init_platforms:
