@@ -5,7 +5,7 @@ name: Deploy Collection
 on:
   release:
     types:
-      - published
+      - created
 
 jobs:
   deploy:
