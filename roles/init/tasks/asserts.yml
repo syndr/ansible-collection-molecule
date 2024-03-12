@@ -11,6 +11,14 @@
     fail_msg: Global configuration option for init role is not sane
     success_msg: Sanity check passed
 
+- name: Check for collection identification
+  ansible.builtin.assert:
+    that:
+      - __init_collection_config.collection_info.namespace is truthy
+      - __init_collection_config.collection_info.name is truthy
+    fail_msg: Collection ID information not found! This role must be run from within its collection!
+    success_msg: Collection ID found
+
 - name: Check for project file paths
   ansible.builtin.stat:
     path: "{{ __init_item }}"
@@ -28,7 +36,7 @@
     fail_msg: Specified file path does not exist!
   loop: "{{ __init_filepath_stat.results }}"
   loop_control:
-    label: "{{ __init_item.item }}"
+    label: "{{ __init_item.stat.path }}"
     loop_var: __init_item
 
 - name: Check for secret if specified
