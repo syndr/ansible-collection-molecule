@@ -53,13 +53,15 @@
 
 - name: Add container to molecule_inventory
   vars:
+    __docker_platform_inventory_partial_hostvars: "{{ {
+      'ansible_connection': 'community.docker.docker'
+      } | combine(docker_platform_hostvars, recursive=true) }}"
     __docker_platform_inventory_partial_yaml: |
       all:
         children:
           molecule:
             hosts:
-              "{{ docker_platform_name }}":
-                ansible_connection: community.docker.docker
+              "{{ docker_platform_name }}": {{ __docker_platform_inventory_partial_hostvars }}
   ansible.builtin.set_fact:
     __docker_platform_molecule_inventory: >
       {{ __docker_platform_current_molecule_inventory | default({}) | combine(__docker_platform_inventory_partial_yaml | from_yaml, recursive=true) }}
