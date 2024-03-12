@@ -20,6 +20,13 @@ Some resources on Molecule can be found here:
 * [Ansible Collections: Role Tests with Molecule](https://ericsysmin.com/2020/04/30/ansible-collections-role-tests-with-molecule/)
 * [Introducing Ansible Molecule with Ansible Automation Platform](https://developers.redhat.com/articles/2023/09/13/introducing-ansible-molecule-ansible-automation-platform#an_automation_testing_framework_built_for_the_enterprise)
 
+> [!WARNING]  
+> Some [fairly significant changes](https://ansible.readthedocs.io/projects/molecule/next/) have been made in Molecule v6. Most noticable among these are likely to be that `ansible` is now the only driver included by default (previously called `delegated`), and that the `molecule init` command now only supports creation of scenarios, not Ansible roles. 
+>
+> This [RedHat article](https://developers.redhat.com/articles/2023/09/13/introducing-ansible-molecule-ansible-automation-platform#) has some more information on this change.
+>
+> When reading the above referenced articles, keep in mind their publishing dates, and that there may have been breaking changes to Molecule's functionality since that time!
+
 # Using this collection
 
 The following roles are provided:
