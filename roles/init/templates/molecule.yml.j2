@@ -40,13 +40,13 @@ provisioner:
 {% endif %}
 {% if init_project_type == 'monolith' %}
   env:
-    ANSIBLE_ROLES_PATH: ${PWD}/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
-    ANSIBLE_COLLECTIONS_PATH: ${PWD}/collections:/usr/share/ansible/collections:~/.ansible/collections
+    ANSIBLE_ROLES_PATH: /usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles:${PWD}/roles
+    ANSIBLE_COLLECTIONS_PATH: /usr/share/ansible/collections:~/.ansible/collections:${PWD}/collections
 {% endif %}
 {% if init_project_type == 'playbook' %}
   env:
-    ANSIBLE_ROLES_PATH: ${PWD}/roles:${PWD}/../roles:${PWD}/../../roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
-    ANSIBLE_COLLECTIONS_PATH: ${PWD}/collections:${PWD}/../collections:${PWD}/../../collections:/usr/share/ansible/collections:~/.ansible/collections
+    ANSIBLE_ROLES_PATH: /usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles:${PWD}/roles:${PWD}/../roles:${PWD}/../../roles
+    ANSIBLE_COLLECTIONS_PATH: /usr/share/ansible/collections:~/.ansible/collections:${PWD}/collections:${PWD}/../collections:${PWD}/../../collections
 {% endif %}
 scenario:
   create_sequence:

@@ -1,13 +1,13 @@
 ---
-{% raw %}
 - name: Create
   hosts: localhost
   gather_facts: false
   tasks:
     - name: Create platform
       ansible.builtin.include_role:
-        name: syndr.molecule.docker_platform
+        name: {{ __init_collection_config.collection_info.namespace }}.{{ __init_collection_config.collection_info.name }}.docker_platform
       vars:
+{% raw %}
         docker_platform_name: "{{ item.name }}"
         docker_platform_image: "{{ item.image }}"
         docker_platform_systemd: "{{ item.systemd | default(false) }}"
@@ -36,7 +36,7 @@
 
     - name: Load system facts
       ansible.builtin.setup:
-        filters:
+        filter:
           - ansible_service_mgr
 
     - name: Wait for systemd to complete initialization.
