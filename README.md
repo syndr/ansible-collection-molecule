@@ -8,9 +8,27 @@ It provides tooling to create Molecule testing scenarios via the `init` role, an
 
 When utilizing an image with systemd support (systemd packages are installed, etc.), the `docker_platform` role supports the creation of Docker containers with a functional Systemd implementation, which can be used to test Ansible code that makes use of Systemd services or related functionality.
 
+# What is Molecule?
+
+> Molecule project is designed to aid in the development and testing of Ansible roles.
+
+Molecule is a testing platform for your Ansible projects that enables testing of your code both during development and after release via CI infrastructure.
+
+Some resources on Molecule can be found here:
+* [Developing and Testing Ansible Roles with Molecule and Podman - Part 1](https://www.ansible.com/blog/developing-and-testing-ansible-roles-with-molecule-and-podman-part-1)
+* [Testing your Ansible roles with Molecule](https://www.jeffgeerling.com/blog/2018/testing-your-ansible-roles-molecule)
+* [Ansible Collections: Role Tests with Molecule](https://ericsysmin.com/2020/04/30/ansible-collections-role-tests-with-molecule/)
+* [Introducing Ansible Molecule with Ansible Automation Platform](https://developers.redhat.com/articles/2023/09/13/introducing-ansible-molecule-ansible-automation-platform#an_automation_testing_framework_built_for_the_enterprise)
+
 # Using this collection
 
-The recommended way to use this collection is to provision Molecule scenarios using the [init role](roles/init). The `init` role provides template configurations that will work in various project types. 
+The following roles are provided:
+
+* [init](roles/init) - Initialize the Molecule testing framework for a project
+* [docker_platform](roles/docker_platform) - Create a docker-based test platform for Molecule
+* [prepare_controller](roles/prepare_controller) - Prepare a molecule controller to run local code tests
+
+The recommended way to use this collection is to provision Molecule scenarios using the [init role](roles/init). The `init` role provides template configurations that will work in various project types.
 
 ## Host Requirements
 
@@ -176,10 +194,17 @@ INFO     Running pb-example_playbook > list
                      ╵             ╵                  ╵                     ╵         ╵
 ```
 
+
 And running the full test suite for this playbook would be done as:
 
 ```bash
-molecule -s pb-example_playbook test
+molecule test -s pb-example_playbook
+```
+
+While running just the "converge" steps (IE: during development) would be:
+
+```bash
+molecule converge -s pb-example_playbook
 ```
 
 > [!TIP]  
