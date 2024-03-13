@@ -8,6 +8,22 @@ It provides tooling to create Molecule testing scenarios via the `init` role, an
 
 When utilizing an image with systemd support (systemd packages are installed, etc.), the `docker_platform` role supports the creation of Docker containers with a functional Systemd implementation, which can be used to test Ansible code that makes use of Systemd services or related functionality.
 
+# Table of Contents
+
+- [Ansible Collection - syndr.molecule](#ansible-collection---syndrmolecule)
+- [What is Molecule?](#what-is-molecule)
+- [Using this collection](#using-this-collection)
+  - [Host Requirements](#host-requirements)
+  - [Project requirements](#project-requirements)
+    - [Standalone roles](#standalone-roles)
+    - [Collections](#collections)
+    - [Monoliths](#monoliths)
+      - [Testing roles and playbooks within a monolithic project](#testing-roles-and-playbooks-within-a-monolithic-project)
+    - [Playbooks](#playbooks)
+- [Using Molecule](#using-molecule)
+  - [Ansible Tags](#ansible-tags)
+- [Contributing](#contributing)
+
 # What is Molecule?
 
 > Molecule project is designed to aid in the development and testing of Ansible roles.
@@ -26,6 +42,8 @@ Some resources on Molecule can be found here:
 > This [RedHat article](https://developers.redhat.com/articles/2023/09/13/introducing-ansible-molecule-ansible-automation-platform#) has some more information on this change.
 >
 > When reading the above referenced articles, keep in mind their publishing dates, and that there may have been breaking changes to Molecule's functionality since that time!
+
+More tips on using Molecule can be found [below](#using-molecule).
 
 # Using this collection
 
@@ -246,6 +264,33 @@ It also adds the following directories to the collection path configuration (pat
 * `./collections`
 * `./../collections`
 * `./../../collections`
+
+# Using Molecule
+
+The most common Molecule commands that you will likely use are:
+
+```bash
+molecule create     # Create the test infrastructure, as defined in molecule.yml
+molecule converge   # Run the plays from converge.yml (launch your role/playbook)
+molecule verify     # Run the plays from verify.yml (test for desired state)
+molecule test       # Run the full test sequence
+```
+
+## Ansible Tags
+
+If [tags](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_tags.html) are used in your code to enable/disable certian functionality, they must be specified on the command line when running Molecule commands. To do so, use the `--` [command line option](https://ansible.readthedocs.io/projects/molecule/usage/#test-sequence-commands) to pass commands through to `ansible-playbook`.
+
+For example:
+
+```bash
+molecule test -- --tags the-cheese
+```
+
+Or running `converge` using a non-default scenario:
+
+```bash
+molecule converge -s pb-the_toaster -- --tags sourdough
+```
 
 # Contributing
 
