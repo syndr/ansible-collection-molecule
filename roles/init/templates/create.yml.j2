@@ -5,7 +5,7 @@
   tasks:
     - name: Create platform
       ansible.builtin.include_role:
-        name: {{ __init_collection_config.collection_info.namespace }}.{{ __init_collection_config.collection_info.name }}.docker_platform
+        name: {{ ansible_collection_name }}.docker_platform
       vars:
 {% raw %}
         docker_platform_name: "{{ item.name }}"
