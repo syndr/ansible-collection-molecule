@@ -1,12 +1,6 @@
 ---
 # tasks file for init
 
-- name: Load parent collection config
-  # NOTE: This will break if this role is moved outside of the collection!
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/../../MANIFEST.json"
-    name: __init_collection_config
-
 - name: Check configuration data
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/asserts.yml"
 

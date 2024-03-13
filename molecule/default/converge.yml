@@ -46,7 +46,7 @@
           ansible.builtin.set_fact:
             test_prepare_fact: "{{ ansible_local.molecule.test_prepare_fact }}"
 
-    - name: Add your project test configuration here
+    - name: Dump the vars
       ansible.builtin.debug:
-        msg: Typically this will be via the ansible.builtin.include_role module or via import_playbook
+        var: testvar
 

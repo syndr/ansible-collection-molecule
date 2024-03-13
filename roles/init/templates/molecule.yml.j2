@@ -19,6 +19,7 @@ platforms:
     modify_image_buildpath: {{ init_platform.config.modify_image_buildpath }}
 {% endif %}
     privileged: {{ init_platform.config.privileged | default(false) }}
+    hostvars: {}
 {% endif %}
 {% endfor %}
 provisioner:
