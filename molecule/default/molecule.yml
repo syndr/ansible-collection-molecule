@@ -13,6 +13,8 @@ platforms:
     systemd: True
     modify_image: False
     privileged: False
+    hostvars:
+      testvar: stuff
 provisioner:
   name: ansible
   log: True
