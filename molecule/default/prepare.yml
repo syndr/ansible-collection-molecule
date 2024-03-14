@@ -9,12 +9,57 @@
       vars:
         prepare_controller_project_type: collection
 
+    - name: Archive this project for transfer
+      community.general.archive:
+        path: "{{ playbook_dir }}/../../"
+        dest: "{{ molecule_ephemeral_directory }}/project.tar"
+        format: tar
+
 - name: Prepare target host for execution
   hosts: molecule
+  tags: always
+  vars:
+    molecule_user: molecule_runner
   tasks:
-    - name: Add your host preparation tasks here!
-      ansible.builtin.debug:
-        msg: "IE: adding system users, installing required packages, etc."
+    ##
+    # Creating an admin service account for Molecule/Ansible to use for testing
+    #
+    #   - If you run Ansible as a service account (you should) on your hosts and
+    #     not as root, it is wise to also test as a non-root user!
+    #
+    #   - To use this account, add the following to any plays targeting test
+    #     infrastructure (such as in converge.yml):
+    #
+    #         vars:
+    #           ansible_user: molecule_runner
+    ##
+    - name: Create ansible service account
+      block:
+        - name: Create ansible group
+          ansible.builtin.group:
+            name: "{{ molecule_user }}"
+
+        - name: Create ansible user
+          ansible.builtin.user:
+            name: "{{ molecule_user }}"
+            group: "{{ molecule_user }}"
+
+        - name: Sudoers.d directory exists
+          ansible.builtin.file:
+            path: /etc/sudoers.d
+            state: directory
+            owner: root
+            group: root
+            mode: 0751
+
+        - name: Ansible user has sudo
+          ansible.builtin.copy:
+            content: |
+              {{ molecule_user }}  ALL=(ALL)  NOPASSWD: ALL
+            dest: /etc/sudoers.d/ansible
+            owner: root
+            group: root
+            mode: 0600
 
     - name: "Save vars to host (IE: generated test credentials, etc.)"
       become: true
@@ -25,8 +70,7 @@
             state: directory
             owner: root
             group: root
-            mode: 0744
-
+            mode: 0755
 
         - name: Persistent data saved to local Ansible facts
           ansible.builtin.copy:
@@ -35,4 +79,38 @@
             owner: root
             group: root
             mode: 0644
+
+    - name: Install packages
+      ansible.builtin.package:
+        name:
+          - ansible-core
+          - wget
+
+    - name: Add the working version of this project to test host
+      become: true
+      become_user: "{{ molecule_user }}"
+      vars:
+        collection_namespace: "{{ (lookup('file', playbook_dir ~ '/../../galaxy.yml') | from_yaml).namespace }}"
+        collection_name: "{{ (lookup('file', playbook_dir ~ '/../../galaxy.yml') | from_yaml).name }}"
+      block:
+        - name: Local user collections path exists
+          ansible.builtin.file:
+            path: ~/.ansible/collections/ansible_collections
+            state: directory
+
+        - name: Project dir does not exist (Clean Slate 󰩸)
+          ansible.builtin.file:
+            path: ~/.ansible/collections/ansible_collections/{{ collection_namespace }}/{{ collection_name }}
+            state: absent
+
+        - name: Recreate project dir
+          ansible.builtin.file:
+            path: ~/.ansible/collections/ansible_collections/{{ collection_namespace }}/{{ collection_name }}
+            state: directory
+
+        - name: Deploy project to host
+          ansible.builtin.unarchive:
+            src: "{{ molecule_ephemeral_directory }}/project.tar"
+            dest: ~/.ansible/collections/ansible_collections/{{ collection_namespace }}/{{ collection_name }}
+            copy: true
 

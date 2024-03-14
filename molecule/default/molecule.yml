@@ -9,12 +9,12 @@ driver:
     login_cmd_template: 'docker exec -ti {instance} bash'
 platforms:
   - name: instance
+    type: docker
     image: geerlingguy/docker-${MOLECULE_GEERLINGGUY_DISTRO:-rockylinux9}-ansible:latest
     systemd: True
     modify_image: False
     privileged: False
-    hostvars:
-      testvar: stuff
+    hostvars: {}
 provisioner:
   name: ansible
   log: True
