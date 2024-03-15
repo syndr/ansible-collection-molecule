@@ -80,11 +80,48 @@
             group: root
             mode: 0644
 
+    - name: Collect host facts
+      ansible.builtin.setup:
+        filter:
+          - ansible_distribution*
+
     - name: Install packages
-      ansible.builtin.package:
-        name:
-          - ansible-core
-          - wget
+      # NOTE: If testing with a distro not mentioned in this block, you'll need to add code for it here!
+      block:
+        - name: Install packages for ubuntu
+          block:
+            - name: Install prereqs (Ubuntu)
+              ansible.builtin.apt:
+                update_cache: true
+                pkg:
+                  - software-properties-common
+                  - dirmngr
+
+            - name: Install Ansible PPA (Ubuntu)
+              ansible.builtin.apt_repository:
+                repo: "ppa:ansible/ansible"
+
+            - name: Install packages (Ubuntu)
+              ansible.builtin.apt:
+                pkg:
+                  - ansible
+                  - wget
+          when: ansible_distribution | lower == 'ubuntu'
+
+        - name: Install packages (RHEL Family)
+          ansible.builtin.package:
+            name:
+              - ansible-core
+              - wget
+          when: ansible_distribution_file_variety | lower == 'redhat'
+
+    - name: Verify application availibility
+      ansible.builtin.command:
+        cmd: "{{ item }}"
+      changed_when: false
+      loop:
+        - ansible-playbook --version
+        - wget --version
 
     - name: Add the working version of this project to test host
       become: true
