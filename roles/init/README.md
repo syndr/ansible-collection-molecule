@@ -1,4 +1,4 @@
-syndr.molecule.init
+influxdata.molecule.init
 =========
 
 Initialize the Molecule testing framework for a project.
@@ -21,7 +21,7 @@ Within the new scenario directory (default), create a file `init.yml` containing
 
 Alternatively, you can run:
 ```bash
-wget -P molecule/default https://raw.githubusercontent.com/syndr/ansible-collection-molecule/main/roles/init/files/init.yml
+wget -P molecule/default https://raw.githubusercontent.com/influxdata/ansible-collection-molecule/main/roles/init/files/init.yml
 ```
 
 Configuration variables for the `init` role launched by this playbook can be customized as desired.
@@ -165,7 +165,7 @@ Dependencies
 
 **Collections**  
 * community.docker
-* syndr.molecule
+* influxdata.molecule
 
 Example Playbook
 ----------------
@@ -179,7 +179,7 @@ Example Playbook
   tasks:
     - name: Launch provisioner
       ansible.builtin.include_role:
-        name: syndr.molecule.init
+        name: influxdata.molecule.init
       vars:
         init_project_type: auto
         init_platforms:

@@ -73,7 +73,7 @@ Example Playbook
   tasks:
     - name: Create platform
       ansible.builtin.include_role:
-        name: syndr.molecule.docker_platform
+        name: influxdata.molecule.docker_platform
       vars:
         docker_platform_name: "{{ item.name }}"
         docker_platform_image: "{{ item.image }}"

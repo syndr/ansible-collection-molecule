@@ -2,10 +2,10 @@
 
 name: Deploy Collection
 
-on:
-  release:
-    types:
-      - created
+on: {}
+#  release:
+#    types:
+#      - created
 
 jobs:
   deploy:
