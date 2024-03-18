@@ -1,4 +1,4 @@
-influxdata.molecule.prepare_controller
+syndr.molecule.prepare_controller
 =========
 
 Prepare a Molecule controller to run tests using local project repositories.
@@ -53,7 +53,7 @@ Example Playbook
   tasks:
     - name: Configure for standalone role testing
       ansible.builtin.include_role:
-        name: influxdata.molecule.prepare_controller
+        name: syndr.molecule.prepare_controller
       vars:
         prepare_controller_project_type: role
 ```

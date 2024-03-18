@@ -1,6 +1,6 @@
-# Ansible Collection - influxdata.molecule
+# Ansible Collection - syndr.molecule
 
-[![Molecule Test](https://github.com/influxdata/ansible-collection-molecule/actions/workflows/main.yml/badge.svg)](https://github.com/influxdata/ansible-collection-molecule/actions/workflows/main.yml)
+[![Molecule Test](https://github.com/syndr/ansible-collection-molecule/actions/workflows/main.yml/badge.svg)](https://github.com/syndr/ansible-collection-molecule/actions/workflows/main.yml)
 
 This collection facilitates the creation and use of test environments using the Ansible [Molecule project](https://ansible.readthedocs.io/projects/molecule/).
 
@@ -184,7 +184,7 @@ collections_path = ./collections:/usr/share/ansible/collections:~/.ansible/colle
 
 or this collection should be installed locally with:  
 ```bash
-ansible-galaxy collection install -p ./collections influxdata.molecule
+ansible-galaxy collection install -p ./collections syndr.molecule
 ```
 
 or if your `collections/requirements.yml` includes this collection:
@@ -201,7 +201,7 @@ For example (role):
 ```bash
 ROLE_NAME=your_role
 mkdir -p molecule/role-$ROLE_NAME
-wget -P molecule/role-$ROLE_NAME https://raw.githubusercontent.com/influxdata/ansible-collection-molecule/main/roles/init/files/init.yml
+wget -P molecule/role-$ROLE_NAME https://raw.githubusercontent.com/syndr/ansible-collection-molecule/main/roles/init/files/init.yml
 ansible-playbook molecule/role-$ROLE_NAME/init.yml
 ```
 

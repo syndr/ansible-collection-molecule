@@ -2,7 +2,7 @@
 # The namespace of the collection. This can be a company/brand/organization or product namespace under which all
 # content lives. May only contain alphanumeric lowercase characters and underscores. Namespaces cannot start with
 # underscores or numbers and cannot contain consecutive underscores
-namespace: influxdata
+namespace: syndr
 
 # The name of the collection. Has the same character restrictions as 'namespace'
 name: molecule
@@ -47,7 +47,7 @@ tags:
 dependencies: {}
 
 # The URL of the originating SCM repository
-repository: https://github.com/influxdata/ansible-collection-molecule
+repository: https://github.com/syndr/ansible-collection-molecule
 
 # The URL to any online docs
 #documentation: http://docs.example.com
@@ -56,7 +56,7 @@ repository: https://github.com/influxdata/ansible-collection-molecule
 #homepage: http://example.com
 
 # The URL to the collection issue tracker
-#issues: https://github.com/influxdata/ansible-collection-molecule/issues
+#issues: https://github.com/syndr/ansible-collection-molecule/issues
 
 # A list of file glob-like patterns used to filter any files or directories that should not be included in the build
 # artifact. A pattern is matched from the relative path of the file or directory of the collection directory. This

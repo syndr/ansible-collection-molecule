@@ -54,7 +54,7 @@ Configuration that should not require modification:
 docker_platform_molecule_ephemeral_directory: "{{ molecule_ephemeral_directory }}"
 ```
 
-Molecule variables expected:
+Molecule variables expected:  
 - `molecule_ephemeral_directory`
 
 Dependencies
@@ -73,7 +73,7 @@ Example Playbook
   tasks:
     - name: Create platform
       ansible.builtin.include_role:
-        name: influxdata.molecule.docker_platform
+        name: syndr.molecule.docker_platform
       vars:
         docker_platform_name: "{{ item.name }}"
         docker_platform_image: "{{ item.image }}"

@@ -54,7 +54,7 @@
     - name: Run the init role
       vars:
         test_dir: /tmp/molecule-init
-        test_init_wget_path: "https://raw.githubusercontent.com/influxdata/ansible-collection-molecule/main/roles/init/files/init.yml"
+        test_init_wget_path: "https://raw.githubusercontent.com/syndr/ansible-collection-molecule/main/roles/init/files/init.yml"
         test_collection_dir: "{{ test_dir }}/ci_testing/test_collection"
         test_role_dir: "{{ test_dir }}/ci_testing/test_collection"
       block:
