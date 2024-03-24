@@ -11,6 +11,7 @@
     state: absent
     auto_remove: true
 
+# TODO: Remove just this host, not the whole inventory
 - name: Remove dynamic molecule inventory
   delegate_to: localhost
   block:

@@ -1,0 +1,74 @@
+---
+# Add a host to the Molecule inventory
+
+- name: Load existing instance configuration
+  when: __platform_run_count | int > 1
+  block:
+    - name: Load existing instance configuration file
+      ansible.builtin.slurp:
+        src: "{{ platform_molecule_ephemeral_directory }}/instance_config.yml"
+      register: __platform_current_instance_config_b64
+      ignore_errors: true
+
+    - name: Decode instance configuration data
+      ansible.builtin.set_fact:
+        __platform_current_instance_config: "{{ __platform_current_instance_config_b64.content | default('') | b64decode | from_yaml }}"
+
+- name: Write {{ platform_name }} instance config file
+  ansible.builtin.copy:
+    # This is very basic - just needs an item there to show as managed with docker config
+    content: |
+      {% if __platform_current_instance_config is defined %}
+      {{ __platform_current_instance_config | to_yaml }}
+      {% endif %}
+      # TODO: update this from just docker for connection
+      - instance: {{ platform_name }}
+        connection: docker
+    dest: "{{ platform_molecule_ephemeral_directory }}/instance_config.yml"
+    mode: "0600"
+
+- name: Load existing molecule inventory
+  when: __platform_run_count | int > 1
+  block:
+    - name: Load existing molecule inventory file
+      ansible.builtin.slurp:
+        src: "{{ platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+      register: __platform_current_molecule_inventory_b64
+      ignore_errors: true
+
+    - name: Decode instance configuration data
+      ansible.builtin.set_fact:
+        __platform_current_molecule_inventory: "{{ __platform_current_molecule_inventory_b64.content | default({}) | b64decode | from_yaml }}"
+
+- name: Add {{ platform_name }} to molecule_inventory
+  vars:
+    __platform_inventory_partial_hostvars: "{{ {
+      'ansible_connection': 'community.docker.docker'
+      } | combine(platform_molecule_cfg.hostvars, recursive=true) }}"
+    __platform_inventory_partial_yaml: |
+      all:
+        children:
+          molecule:
+            hosts:
+              "{{ platform_name }}": {{ __platform_inventory_partial_hostvars }}
+  ansible.builtin.set_fact:
+    __platform_molecule_inventory: >
+      {{ __platform_current_molecule_inventory | from_yaml | default({}) | combine(__platform_inventory_partial_yaml | from_yaml, recursive=true) }}
+
+- name: Write {{ platform_name }} to molecule inventory file
+  ansible.builtin.copy:
+    content: |
+      {{ __platform_molecule_inventory | to_yaml }}
+    dest: "{{ platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+    mode: "0600"
+
+- name: Force inventory refresh
+  ansible.builtin.meta: refresh_inventory
+
+- name: Fail if molecule group is missing
+  ansible.builtin.assert:
+    that: "'molecule' in groups"
+    fail_msg: |
+      molecule group was not found inside inventory groups: {{ groups }}
+
+
