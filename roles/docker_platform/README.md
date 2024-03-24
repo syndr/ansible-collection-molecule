@@ -54,7 +54,7 @@ Configuration that should not require modification:
 docker_platform_molecule_ephemeral_directory: "{{ molecule_ephemeral_directory }}"
 ```
 
-Molecule variables expected:
+Molecule variables expected:  
 - `molecule_ephemeral_directory`
 
 Dependencies

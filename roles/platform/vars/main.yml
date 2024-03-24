@@ -1,0 +1,7 @@
+---
+# vars file for platform
+
+# Filesystem location of the Molecule ephemeral directory. Should not need to be updated by the user of this role!
+platform_molecule_ephemeral_directory: "{{ molecule_ephemeral_directory }}"
+
+
