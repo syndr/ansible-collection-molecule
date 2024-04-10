@@ -121,7 +121,7 @@
       users:
         - name: "{{ ec2_platform.ssh_user }}"
           ssh_authorized_keys:
-            - "{{ local_keypairs.results[0].public_key }}"
+            - "{{ __ec2_platform_local_keypair.public_key }}"
           sudo: "ALL=(ALL) NOPASSWD:ALL"
     __ec2_platform_cloud_config: >-
       {{ (ec2_platform.key_inject_method == 'cloud-init')
@@ -132,10 +132,11 @@
 
     __ec2_platform_generated_tags:
       instance: "{{ ec2_platform.name }}"
-      "molecule-run-id": "{{ run_config.run_id }}"
-    __ec2_platform_tags: "{{ (ec2_platform.tags or {}) | combine(platform_generated_tags) }}"
+      "molecule-run-id": "{{ ec2_platform_run_config.run_id }}"
+      Name: molecule-{{ ec2_platform.name }}
+    __ec2_platform_tags: "{{ (ec2_platform.tags or {}) | combine(__ec2_platform_generated_tags) }}"
     __ec2_platform_filter_keys: "{{ __ec2_platform_generated_tags.keys() | map('regex_replace', '^(.+)$', 'tag:\\1') }}"
-    __ec2_platform_filters: "{{ dict(platform_filter_keys | zip(platform_generated_tags.values())) }}"
+    __ec2_platform_filters: "{{ dict(__ec2_platform_filter_keys | zip(__ec2_platform_generated_tags.values())) }}"
   register: __ec2_instance_creation
 
 
@@ -173,6 +174,7 @@
     delay: 10
     timeout: 320
 
+# TODO: Add an actual check here instead of only waiting
 - name: Wait for boot process to finish
   ansible.builtin.pause:
     seconds: "{{ ec2_platform.boot_wait_seconds }}"
