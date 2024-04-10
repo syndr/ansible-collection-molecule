@@ -1,0 +1,11 @@
+---
+# tasks file for ec2_platform
+
+- name: Platform is deployed
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/present.yml"
+  when: ec2_platform_state == 'present'
+
+- name: Platform is not deployed
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/absent.yml"
+  when: ec2_platform_state == 'absent'
+

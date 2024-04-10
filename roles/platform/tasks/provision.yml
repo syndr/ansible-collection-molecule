@@ -26,6 +26,15 @@
     docker_platform_privileged: "{{ platform_molecule_cfg.privileged | default (false) }}"
     docker_platform_hostvars: "{{ platform_molecule_cfg.hostvars | default({}) }}"
 
+- name: Configure platform for ec2 type
+  when: platform_type == 'ec2'
+  ansible.builtin.include_role:
+    name: "{{ ansible_collection_name }}.ec2_platform"
+  vars:
+    ec2_platform_name: "{{ platform_name }}"
+    ec2_platform_state: present
+    ec2_platform_definition: "{{ platform_molecule_cfg }}"
+
 - name: Configure Molecule inventory
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/inventory.yml"
 

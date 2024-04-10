@@ -1,0 +1,14 @@
+---
+
+- name: Perform cleanup
+  hosts: molecule
+  gather_facts: false
+  tasks:
+    - name: Remove platform
+      ansible.builtin.include_role:
+        name: syndr.molecule.docker_platform
+      vars:
+
+        docker_platform_name: "{{ inventory_hostname }}"
+        docker_platform_state: absent
+

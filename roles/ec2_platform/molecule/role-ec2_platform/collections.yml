@@ -1,0 +1,8 @@
+---
+
+collections:
+  - name: community.docker
+  - name: git+https://github.com/syndr/ansible-collection-molecule.git
+    type: git
+    version: latest
+
