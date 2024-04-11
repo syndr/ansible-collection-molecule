@@ -18,7 +18,7 @@
     name: "{{ ansible_collection_name }}.docker_platform"
   vars:
     docker_platform_name: "{{ platform_name }}"
-    docker_platform_state: "{{ platform_state }}"
+    docker_platform_state: present
     docker_platform_image: "{{ platform_molecule_cfg.image }}"
     docker_platform_systemd: "{{ platform_molecule_cfg.systemd | default(false) }}"
     docker_platform_modify_image: "{{ platform_molecule_cfg.modify_image | default(false) }}"
@@ -34,7 +34,4 @@
     ec2_platform_name: "{{ platform_name }}"
     ec2_platform_state: present
     ec2_platform_definition: "{{ platform_molecule_cfg }}"
-
-- name: Configure Molecule inventory
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/inventory.yml"
 

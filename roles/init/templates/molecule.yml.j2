@@ -21,6 +21,14 @@ platforms:
     privileged: {{ init_platform.config.privileged | default(false) }}
     hostvars: {}
 {% endif %}
+{% if init_platform.type == 'ec2' %}
+    image: {{ init_platform.config.image }}
+    instance_type: {{ init_platform.config.instance_type }}
+    region: {{ init_platform.config.region }}
+    vpc_id: {{ init_platform.config.vpc_id }}
+    vpc_subnet_id: {{ init_platform.config.vpc_subnet_id }}
+    hostvars: {}
+{% endif %}
 {% endfor %}
 provisioner:
   name: ansible

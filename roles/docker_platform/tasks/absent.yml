@@ -12,17 +12,17 @@
     auto_remove: true
 
 # TODO: Remove just this host, not the whole inventory
-- name: Remove dynamic molecule inventory
-  delegate_to: localhost
-  block:
-    - name: Remove dynamic inventory file
-      ansible.builtin.file:
-        path: "{{ docker_platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
-        state: absent
-
-    - name: Remove instance config file
-      ansible.builtin.file:
-        path: "{{ docker_platform_molecule_ephemeral_directory }}/instance_config.yml"
-        state: absent
+#- name: Remove dynamic molecule inventory
+#  delegate_to: localhost
+#  block:
+#    - name: Remove dynamic inventory file
+#      ansible.builtin.file:
+#        path: "{{ docker_platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+#        state: absent
+#
+#    - name: Remove instance config file
+#      ansible.builtin.file:
+#        path: "{{ docker_platform_molecule_ephemeral_directory }}/instance_config.yml"
+#        state: absent
 
 

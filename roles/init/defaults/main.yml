@@ -4,6 +4,10 @@
 # The type of project that this Molecule configuration will be integrated into
 init_project_type: auto
 
+# The type of platform that this Molecule configuration will be testing on (docker, ec2)
+# WARN: mixing platform types is not supported!
+init_platform_type: docker
+
 # Filesystem location of the molecule scenario being initialized
 init_scenario_dir: "{{ molecule_scenario_directory | default(playbook_dir) }}"
 
@@ -24,12 +28,7 @@ init_project_dir: "{{ init_scenario_dir.split('/')[:-2] | join('/') }}"
 #      modify_image: (true/false)
 #      modify_image_buildpath: (string)     # path to directory containing Dockerfile
 #      privileged: (true/false)
-init_platforms:
-  - name: docker-rockylinux9
-    type: docker
-    config:
-      image: "geerlingguy/docker-rockylinux9-ansible:latest"
-      systemd: true
+init_platforms: []
 
 # Create backups of any files that would be clobbered by running this role
 init_file_backup: true

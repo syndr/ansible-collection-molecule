@@ -6,8 +6,7 @@
     - name: Create docker platform(s)
       ansible.builtin.include_role:
         name: {{ ansible_collection_name }}.platform
-      vars:
-{% raw %}
+      vars:{% raw %}
         platform_name: "{{ item.name }}"
         platform_state: present
         platform_type: "{{ item.type }}"

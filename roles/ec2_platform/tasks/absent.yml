@@ -9,7 +9,7 @@
   ansible.builtin.assert:
     that:
       - ec2_platform is mapping
-      - ec2_platform.name is string and platform.name | length > 0
+      - ec2_platform.name is string and ec2_platform.name | length > 0
       - ec2_platform.aws_profile is string
       - ec2_platform.key_inject_method is in ["cloud-init", "ec2"]
       - ec2_platform.key_name is string and ec2_platform.key_name | length > 0
@@ -32,20 +32,25 @@
   ansible.builtin.assert:
     that: ec2_platform.vpc_id or (__ec2_platform_subnet_info.subnets | length > 0)
     quiet: true
+    fail_msg: "No VPCs found for subnet: {{ ec2_platform.vpc_subnet_id }}"
+
+- name: Look up EC2 instance by tag
+  amazon.aws.ec2_instance_info:
+    profile: "{{ ec2_platform.aws_profile | default(omit) }}"
+    region: "{{ ec2_platform.region | default(omit) }}"
+    filters:
+      "tag:molecule-run-id": "{{ ec2_platform_run_config.run_id }}"
+  register: __ec2_instance_info
 
 - name: Destroy ephemeral EC2 instances
+  when: __ec2_instance_info.instances | length > 0
   amazon.aws.ec2_instance:
     profile: "{{ ec2_platform.aws_profile | default(omit) }}"
     region: "{{ ec2_platform.region | default(omit) }}"
-    instance_ids: "{{ instance_config | map(attribute='instance_ids') | flatten }}"
+    instance_ids: "{{ __ec2_instance_info.instances | map(attribute='instance_id') | list }}"
     vpc_subnet_id: "{{ ec2_platform.vpc_subnet_id }}"
     state: absent
   register: __ec2_instance_destroy
-
-#- name: Write Molecule instance configs
-#  ansible.builtin.copy:
-#    dest: "{{ molecule_instance_config }}"
-#    content: "{{ {} | to_yaml }}"
 
 - name: Destroy ephemeral security groups (if needed)
   amazon.aws.ec2_security_group:

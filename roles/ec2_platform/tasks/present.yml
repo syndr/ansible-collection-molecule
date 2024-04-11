@@ -154,18 +154,6 @@
       instance_ids:
         - "{{ __ec2_platform_instance.instance_id }}"
 
-#- name: Write Molecule instance configs
-#  ansible.builtin.copy:
-#    dest: "{{ molecule_instance_config }}"
-#    content: >-
-#      {{ instance_configs.results
-#           | map(attribute='ansible_facts.instance_config')
-#           | list
-#           | to_json
-#           | from_json
-#           | to_yaml }}
-#    mode: "0600"
-
 - name: Wait for SSH connectivity
   ansible.builtin.wait_for:
     host: "{{ ec2_platform_instance_config.address }}"
