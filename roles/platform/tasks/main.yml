@@ -6,6 +6,9 @@
   when: platform_state == 'present'
 
 - name: Platform is destroyed
-  ansible.builtin.include_tasks: "{ role_path }}/tasks/destroy.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/deprovision.yml"
   when: platform_state == 'absent'
+
+- name: Configure Molecule inventory
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/inventory.yml"
 
