@@ -1,38 +1,87 @@
-Role Name
+molecule.platform
 =========
 
-A brief description of the role goes here.
+Deploy a Molecule platform for testing.
+
+This role handles both the creation and destruction of a Molecule platform, as well as configuration of internal Molecule inventory files necessary to utilize them. It is the recommended way to utilize this collection's platform roles.
+
+Supported platforms are:
+- `docker`
+- `ec2`
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+1. Molecule should be installed and executable from a location in the users PATH
+1. Ansible should be installed, with `ansible-playbook` executable via the users PATH
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+```yaml
+# Name of this Molecule platform
+platform_name: instance
+
+# Whether this platform should be deployed on the current system (present/absent)
+platform_state: present
+
+# What type of platform should be deployed
+platform_type: docker
+
+# Molecule platform configuration
+platform_molecule_cfg: {}
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+**Roles included with this collection:**
+- `molecule.docker_platform`
+- `molecule.ec2_platform`
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```yaml
+- name: Create
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Create platform(s)
+      ansible.builtin.include_role:
+        name: syndr.molecule.platform
+      vars:
+        platform_name: "{{ item.name }}"
+        platform_state: present
+        platform_type: "{{ item.type }}"
+        platform_molecule_cfg: "{{ item }}"
+      loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: item.name
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+# We want to avoid errors like "Failed to create temporary directory"
+- name: Validate that inventory was refreshed
+  hosts: molecule
+  gather_facts: false
+  tasks:
+    - name: Check uname
+      ansible.builtin.raw: uname -a
+      register: result
+      changed_when: false
+
+    - name: Display uname info
+      ansible.builtin.debug:
+        msg: "{{ result.stdout }}"
+
+```
 
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+- [@syndr](https://github.com/syndr/)
+

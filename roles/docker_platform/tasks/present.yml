@@ -10,11 +10,6 @@
     # Number of times this role has been included during this playbook run
     __docker_platform_run_count: "{{ __docker_platform_run_count | default(0) | int + 1 }}"
 
-- name: Load system facts
-  ansible.builtin.setup:
-    filter:
-      - ansible_service_mgr
-
 - name: Docker image needs to be customized
   block:
     - name: Check build path
@@ -104,30 +99,3 @@
     __docker_platform_create_result.container.State.ExitCode != 0 or
     not __docker_platform_create_result.container.State.Running
 
-- name: "{{ docker_platform_name }} Systemd status is healthy"
-  block:
-    - name: System service manager is Systemd
-      ansible.builtin.assert:
-        that:
-          - "ansible_service_mgr == 'systemd'"
-        fail_msg: Systemd is enabled, but container service manager isn't Systemd! Is this a Systemd-enabled container?
-
-    - name: Systemd has completed initialization
-      ansible.builtin.command:
-        cmd: systemctl is-system-running
-      register: __docker_platform_systemctl_status
-      until: >
-        'running' in __docker_platform_systemctl_status.stdout or
-        'degraded' in __docker_platform_systemctl_status.stdout
-      retries: 30
-      delay: 5
-      changed_when: false
-      failed_when: __docker_platform_systemctl_status.rc > 1
-
-    - name: "{{ docker_platform_name }} Systemd is healthy"
-      ansible.builtin.assert:
-        that:
-          - "'running' in __docker_platform_systemctl_status.stdout"
-        success_msg: Systemd is healthy
-        fail_msg: Systemd is unhealthy
-  when: docker_platform_systemd

@@ -6,7 +6,9 @@ driver:
   name: default
   options:
     managed: true
+{% if 'docker' in init_platforms | map(attribute='type') %} 
     login_cmd_template: 'docker exec -ti {instance} bash'
+{% endif %}
 platforms:
 {% for init_platform in init_platforms %}
   - name: {{ init_platform.name }}
@@ -19,16 +21,14 @@ platforms:
     modify_image_buildpath: {{ init_platform.config.modify_image_buildpath }}
 {% endif %}
     privileged: {{ init_platform.config.privileged | default(false) }}
-    hostvars: {}
 {% endif %}
 {% if init_platform.type == 'ec2' %}
     image: {{ init_platform.config.image }}
-    instance_type: {{ init_platform.config.instance_type }}
     region: {{ init_platform.config.region }}
     vpc_id: {{ init_platform.config.vpc_id }}
     vpc_subnet_id: {{ init_platform.config.vpc_subnet_id }}
-    hostvars: {}
 {% endif %}
+    hostvars: {}
 {% endfor %}
 provisioner:
   name: ansible

@@ -69,3 +69,8 @@
     state: absent
   when: ec2_platform.key_inject_method == "ec2"
 
+- name: Remove ec2 instance config file
+  ansible.builtin.file:
+    path: "{{ ec2_platform_run_config_path }}"
+    state: absent
+

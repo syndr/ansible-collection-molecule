@@ -46,6 +46,38 @@
         fail_msg: "Platform definition failed! Check the platform configuration."
         success_msg: "Platform definition is valid"
 
+- name: Load collection meta information
+  block:
+    - name: Load collection meta data
+      ansible.builtin.slurp:
+        src: "{{ role_path }}/../../MANIFEST.json"
+      register: __init_collection_meta
+      ignore_errors: true
+
+    - name: 🐜 Show collection meta data
+      ansible.builtin.debug:
+        var: __init_collection_meta.content | b64decode | from_json
+        verbosity: 1
+      ignore_errors: true
+
+    - name: Collection meta data is valid
+      ansible.builtin.assert:
+        that:
+          - __init_collection_meta is not failed
+          - __init_collection_meta.content is defined
+          - (__init_collection_meta.content | b64decode | from_json).collection_info.version is defined
+        fail_msg: "Collection meta data not found! Check the collection configuration."
+        success_msg: "Collection meta data found"
+
+    - name: Extract collection meta info
+      ansible.builtin.set_fact:
+        __init_collection_meta: "{{ (__init_collection_meta.content | b64decode | from_json) }}"
+
+- name: Get collection version
+  when: init_collection_version is not truthy
+  ansible.builtin.set_fact:
+    init_collection_version: "{{ __init_collection_meta.collection_info.version }}"
+
 - name: Deploy molecule configuration
   ansible.builtin.template:
     src: "{{ role_path }}/templates/molecule.yml.j2"
