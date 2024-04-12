@@ -60,23 +60,22 @@
         verbosity: 1
       ignore_errors: true
 
-    - name: Collection meta data is valid
-      ansible.builtin.assert:
-        that:
-          - __init_collection_meta is not failed
-          - __init_collection_meta.content is defined
-          - (__init_collection_meta.content | b64decode | from_json).collection_info.version is defined
-        fail_msg: "Collection meta data not found! Check the collection configuration."
-        success_msg: "Collection meta data found"
-
     - name: Extract collection meta info
+      when:
+        - __init_collection_meta is not failed
+        - __init_collection_meta.content is defined
+        - (__init_collection_meta.content | b64decode | from_json).collection_info.version is defined
       ansible.builtin.set_fact:
         __init_collection_meta: "{{ (__init_collection_meta.content | b64decode | from_json) }}"
 
-- name: Get collection version
-  when: init_collection_version is not truthy
+- name: Set collection information
   ansible.builtin.set_fact:
-    init_collection_version: "{{ __init_collection_meta.collection_info.version }}"
+    init_collection_version: >-
+      "{{ init_collection_version if init_collection_version is truthy
+      else __init_collection_meta.collection_info.version | default(init_collection_defaults.version) }}"
+    __init_collection_name: "{{ __init_collection_meta.collection_info.name | default(init_collection_defaults.name) }}"
+    __init_collection_namespace: "{{ __init_collection_meta.collection_info.namespace | default(init_collection_defaults.namespace) }}"
+    __init_collection_repository: "{{ __init_collection_meta.collection_info.repository | default(init_collection_defaults.repository) }}"
 
 - name: Deploy molecule configuration
   ansible.builtin.template:

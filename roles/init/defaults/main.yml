@@ -47,3 +47,10 @@ init_file_backup: true
 #  - Set to "" to disable
 init_ansible_secret_path: ""
 
+# Configuration defaults to be used if the collection manifest is not accessible
+init_collection_defaults:
+  repository: https://github.com/syndr/ansible-collection-molecule
+  name: molecule
+  namespace: syndr
+  version: latest
+
