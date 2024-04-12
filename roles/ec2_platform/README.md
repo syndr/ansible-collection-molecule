@@ -59,7 +59,7 @@ In order to connect to AWS, you will need the following environment variables to
 
 The `AWS_SESSION_TOKEN` variable is only required if you are using temporary credentials.
 
-Full role configuration options are available in the `defaults/main.yml` file.
+Full role configuration options are available in the [defaults/main.yml](defaults/main.yml) file.
 
 Dependencies
 ------------

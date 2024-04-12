@@ -54,18 +54,22 @@
         fail_msg: "Instance configuration for {{ platform_name }} failed! Check the platform configuration."
         success_msg: "Instance configuration for {{ platform_name }} is defined"
 
+    - name: 🪲 Current instance config
+      ansible.builtin.debug:
+        var: __platform_current_instance_config
+        verbosity: 1
+
     - name: Instance name matching this already exists in configuration
       when:
         - __platform_current_instance_config is truthy
-        - platform_name in __platform_current_instance_config.keys()
+        - platform_name in __platform_current_instance_config | map(attribute='instance') | list 
       block:
         - name: Mark config update as unneeded
           ansible.builtin.set_fact:
             __platform_instance_config_update_needed: false
 
         - name: Existing configuration does not match desired
-          when: __platform_new_instance_config != __platform_current_instance_config |
-            selectattr('instance', 'equalto', platform_name) | list | first)
+          when: __platform_new_instance_config != (__platform_current_instance_config | selectattr('instance', 'equalto', platform_name) | list | first)
           block:
             - name: Remove existing {{ platform_name }} configuration (does not match)
               ansible.builtin.set_fact:
@@ -90,7 +94,7 @@
   vars:
     __platform_instance_config: "{{ __platform_current_instance_config | default([], true) + [__platform_new_instance_config | default('', true)] }}"
   ansible.builtin.copy:
-    content: "{{ __platform_instance_config | to_yaml }}"
+    content: "{{ __platform_instance_config | to_nice_yaml(indent=2) }}"
     dest: "{{ platform_molecule_ephemeral_directory }}/instance_config.yml"
     mode: "0600"
 

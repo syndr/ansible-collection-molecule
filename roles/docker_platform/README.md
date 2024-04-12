@@ -30,7 +30,7 @@ Role Variables
 
 This role should not be used directly in a playbook, and should instead be used via the `molecule.platform` role.
 
-Detailed information on configuration variables for this role can be found in `defaults/main.yml`.
+Detailed information on configuration variables for this role can be found in [defaults/main.yml](defaults/main.yml).
 
 Dependencies
 ------------
