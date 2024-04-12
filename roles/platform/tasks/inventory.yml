@@ -81,18 +81,33 @@
   when: platform_state == 'absent'
   block:
     - name: Remove existing {{ platform_name }} configuration
-      when: platform_name in __platform_current_instance_config | map(attribute='instance') | list
+      when:
+        - __platform_current_instance_config is truthy
+        - platform_name in __platform_current_instance_config | map(attribute='instance') | list
       ansible.builtin.set_fact:
         __platform_current_instance_config: "{{
           __platform_current_instance_config | rejectattr('instance', 'equalto', platform_name) | list }}"
         __platform_instance_config_update_needed: true
 
+- name: dump new instance config
+  ansible.builtin.debug:
+    var: __platform_new_instance_config
+  ignore_errors: true
+
+- name: dump current instance config
+  ansible.builtin.debug:
+    var: __platform_current_instance_config
+  ignore_errors: true
+
 - name: Write {{ platform_name }} instance config file
   when:
     - __platform_instance_config_update_needed
-    - __platform_current_instance_config | default(false)is truthy or __platform_new_instance_config | default(false) is truthy
+    - __platform_current_instance_config | default(false, true)is truthy or __platform_new_instance_config | default(false, true) is truthy
   vars:
-    __platform_instance_config: "{{ __platform_current_instance_config | default([], true) + [__platform_new_instance_config | default('', true)] }}"
+    __platform_instance_config: >-
+      {{ __platform_current_instance_config | default([], true) + [__platform_new_instance_config]
+      if __platform_new_instance_config | default(false, true) is truthy
+      else __platform_current_instance_config }}
   ansible.builtin.copy:
     content: "{{ __platform_instance_config | to_nice_yaml(indent=2) }}"
     dest: "{{ platform_molecule_ephemeral_directory }}/instance_config.yml"
