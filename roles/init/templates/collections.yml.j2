@@ -3,10 +3,10 @@
 collections:
   - name: community.docker
 {% if init_collection_source == 'git' %}
-  - name: git+{{ __init_collection_meta.collection_info.repository }}.git
+  - name: git+{{ __init_collection_repository }}.git
     type: git
 {% elif init_collection_source == 'galaxy' %}
-  - name: {{ __init_collection_meta.collection_info.namespace }}.{{ __init_collection_meta.collection_info.name }}
+  - name: {{ __init_collection_namespace }}.{{ __init_collection_name }}
 {% endif %}
     version: {{ init_collection_version }}
 
