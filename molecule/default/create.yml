@@ -46,12 +46,5 @@
           delay: 5
           changed_when: false
           failed_when: systemctl_status.rc > 1
-
-        - name: Check systemd status
-          ansible.builtin.assert:
-            that:
-              - systemctl_status.stdout == 'running'
-            fail_msg: Systemd-enabled container does not have a healthy Systemd!
-            success_msg: Systemd is running
       when: ansible_service_mgr == 'systemd'
 

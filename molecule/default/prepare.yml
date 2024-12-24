@@ -2,6 +2,9 @@
 
 - name: Prepare controller for execution
   hosts: localhost
+  vars:
+    collection_namespace: "{{ (lookup('file', playbook_dir ~ '/../../galaxy.yml') | from_yaml).namespace }}"
+    collection_name: "{{ (lookup('file', playbook_dir ~ '/../../galaxy.yml') | from_yaml).name }}"
   tasks:
     - name: Configure for standalone role testing
       ansible.builtin.include_role:
@@ -14,6 +17,19 @@
         path: "{{ playbook_dir }}/../../"
         dest: "{{ molecule_ephemeral_directory }}/project.tar"
         format: tar
+
+    - name: Build collection
+      ansible.builtin.command:
+        chdir: "{{ playbook_dir }}/../../"
+        cmd: ansible-galaxy collection build --force
+      register: build_result
+
+    - name: Install collection
+      vars:
+        collection_archive_path: "{{ build_result.stdout | regex_replace('.*\\s+(\\S+\\.tar\\.gz)', '\\1') }}"
+      ansible.builtin.command:
+        chdir: "{{ playbook_dir }}/../../"
+        cmd: ansible-galaxy collection install --force {{ collection_archive_path }}
 
 - name: Prepare target host for execution
   hosts: molecule

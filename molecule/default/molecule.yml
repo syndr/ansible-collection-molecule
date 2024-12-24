@@ -15,9 +15,9 @@ platforms:
     modify_image: False
     privileged: False
     hostvars: {}
-  - name: docker-fedora39
+  - name: docker-fedora41
     type: docker
-    image: geerlingguy/docker-fedora39-ansible:latest
+    image: geerlingguy/docker-fedora41-ansible:latest
     systemd: True
     modify_image: False
     privileged: False

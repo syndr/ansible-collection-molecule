@@ -1,7 +1,7 @@
 ---
 
-name: Molecule Test
-on: 
+name: Test and release 'main'
+on:
   push:
     branches:
       - main
@@ -30,7 +30,19 @@ jobs:
           pip install molecule ansible-lint requests
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Build and install collection
+        run: |
+          ansible-galaxy collection build --force
+          ansible-galaxy collection install --force syndr-molecule-*.tar.gz
+
       - name: Test with molecule
         run: |
           molecule test
 
+      - name: Create 'main' tag
+        uses: EndBug/latest-tag@latest
+        with:
+          ref: main
+          description: This tag is automatically generated on branch updates.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
