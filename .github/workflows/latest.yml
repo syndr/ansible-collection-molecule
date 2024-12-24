@@ -1,7 +1,7 @@
 ---
 
 name: Update `latest` tag
-on: 
+on:
   release:
     types: [published]
 
