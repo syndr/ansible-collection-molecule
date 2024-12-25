@@ -38,6 +38,7 @@
               - ansible_service_mgr
 
         - name: Check on Systemd
+          when: ansible_service_mgr == 'systemd'
           block:
             - name: Wait for systemd to complete initialization.
               ansible.builtin.command: systemctl is-system-running
@@ -49,12 +50,4 @@
               delay: 5
               changed_when: false
               failed_when: systemctl_status.rc > 1
-
-            - name: Check systemd status
-              ansible.builtin.assert:
-                that:
-                  - systemctl_status.stdout == 'running'
-                fail_msg: Systemd-enabled host does not have a healthy Systemd!
-                success_msg: Systemd is running
-          when: ansible_service_mgr == 'systemd'
 

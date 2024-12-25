@@ -57,6 +57,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v4
 
@@ -64,7 +65,7 @@ jobs:
         uses: EndBug/latest-tag@latest
         if: github.event_name == 'push'
         with:
-          ref: br-${{ github.ref_name }}
+          ref: refs/tags/${{ github.ref_name }}
           description: This tag is automatically generated on branch updates.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
