@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
-          pip install molecule ansible-lint requests
+          pip install molecule ansible-lint requests boto3[crt]
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Build and install collection
@@ -54,6 +54,11 @@ jobs:
           ANSIBLE_FORCE_COLOR: 1
         run: |
           molecule test -s ${{ matrix.molecule-scenario }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Create branch tag
         uses: EndBug/latest-tag@latest

@@ -3,7 +3,7 @@
 collections:
   - name: community.general
   - name: community.docker
-  - name: git+https://github.com/syndr/ansible-collection-molecule.git
-    type: git
-    version: latest-devel
+  - name: community.crypto
+  - name: syndr.molecule
+  - name: amazon.aws
 

@@ -14,7 +14,8 @@ platforms:
     systemd: True
     modify_image: False
     privileged: False
-    hostvars: {}
+    hostvars:
+      test_hostvar: test
   - name: docker-fedora41
     type: docker
     image: geerlingguy/docker-fedora41-ansible:latest
