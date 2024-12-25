@@ -1,0 +1,13 @@
+---
+# Verify that the role being tested has done what it's supposed to
+
+- name: Verify
+  hosts: molecule
+  tasks:
+    - name: Test hostvar exists
+      ansible.builtin.assert:
+        that:
+          - test_hostvar == "test"
+        fail_msg: "Custom hostvar not found! Possible issue with storing user-defined hostvars!"
+        success_msg: "Custom hostvar found!"
+

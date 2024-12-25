@@ -16,6 +16,9 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: ["3.12"]
+        molecule-scenario:
+          - default
+          - ec2_platform
 
     steps:
       - uses: actions/checkout@v4
@@ -36,13 +39,21 @@ jobs:
           ansible-galaxy collection build --force
           ansible-galaxy collection install --force syndr-molecule-*.tar.gz
 
+      - name: Log into AWS
+        if: ${{ matrix.molecule-scenario == 'ec2_platform' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
       - name: Test with molecule
         env:
           # Make molecule output colored content (easier to read via GH UI)
           PY_COLORS: 1
           ANSIBLE_FORCE_COLOR: 1
         run: |
-          molecule test
+          molecule test -s ${{ matrix.molecule-scenario }}
 
       - name: Create branch tag
         uses: EndBug/latest-tag@latest
