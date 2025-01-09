@@ -8,7 +8,6 @@
       ansible.builtin.include_role:
         name: syndr.molecule.platform
       vars:
-        platform_name: "{{ item.name }}"
         platform_state: absent
         platform_type: "{{ item.type }}"
         platform_molecule_cfg: "{{ item }}"

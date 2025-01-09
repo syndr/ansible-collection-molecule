@@ -1,6 +1,9 @@
 ---
 # tasks file for docker_platform
 
+- name: Validate configuration
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_cfg.yml"
+
 - name: Platform is deployed
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/present.yml"
   when: docker_platform_state == 'present'

@@ -1,40 +1,51 @@
 ---
 # Add a host to the Molecule inventory
+#
+# Expected variables:
+#  - platform_exported_config: The exported platform configuration from a xxx_platform role
+#     Expected format:
+#       <instance_name>:
+#         hostvars:
+#           hostvar1: value1
+#         instance_config:
+#           name: <instance_name>
+#           connection: <connection_type>
+#
+#
 
 - name: Generate new instance configuration
   when: platform_state == 'present'
   block:
-    - name: Generate {{ platform_name }} instance configuration (Docker)
-      when: platform_type == 'docker'
-      ansible.builtin.set_fact:
-        __platform_new_instance_configs: "{{ [{
-          'instance': platform_name,
-          'connection': 'docker'
-          }] }}"
-        __platform_ansible_hostvars: "{{ {
-          platform_name: {
-            'ansible_connection': 'community.docker.docker'
-          } } }}"
-
-    - name: Generate {{ platform_name }} instance configuration (EC2)
-      when: platform_type == 'ec2'
-      ansible.builtin.set_fact:
-        # NOTE: This depends on the ec2_platform_instance_config being set by the ec2_platform role
-        __platform_new_instance_configs: "{{ [ec2_platform_instance_config] }}"
-        __platform_ansible_connection: "ssh"
-        __platform_ansible_hostvars: "{{ {
-          ec2_platform_instance_config.instance: {
-          'ansible_connection': 'ssh',
-          'ansible_host': ec2_platform_instance_config.address,
-          'ansible_port': ec2_platform_instance_config.port,
-          'ansible_user': ec2_platform_instance_config.user,
-          'ansible_ssh_private_key_file': ec2_platform_instance_config.identity_file
-          } } }}"
-
-    - name: Show hostvars configuration
+    - name: 🐜 Show platform config
       ansible.builtin.debug:
-        var: __platform_ansible_hostvars
+        var: platform_exported_config
         verbosity: 1
+
+    #- name: Generate {{ platform_name }} instance configuration (Docker)
+    #  when: platform_type == 'docker'
+    #  ansible.builtin.set_fact:
+    #    __platform_new_instance_configs: "{{ [{
+    #      'instance': platform_name,
+    #      'connection': 'docker'
+    #      }] }}"
+    #    __platform_ansible_hostvars: "{{ {
+    #      platform_name: {
+    #        'ansible_connection': 'community.docker.docker'
+    #      } } }}"
+
+    #- name: Generate {{ platform_name }} instance configuration (EC2)
+    #  when: platform_type == 'ec2'
+    #  ansible.builtin.set_fact:
+    #    # NOTE: This depends on the ec2_platform_instance_config being set by the ec2_platform role
+    #    __platform_new_instance_configs: "{{ [ec2_platform_instance_config] }}"
+    #    __platform_ansible_hostvars: "{{ {
+    #      ec2_platform_instance_config.instance: {
+    #      'ansible_connection': 'ssh',
+    #      'ansible_host': ec2_platform_instance_config.address,
+    #      'ansible_port': ec2_platform_instance_config.port,
+    #      'ansible_user': ec2_platform_instance_config.user,
+    #      'ansible_ssh_private_key_file': ec2_platform_instance_config.identity_file
+    #      } } }}"
 
 - name: Load existing instance configuration
   block:
@@ -50,12 +61,18 @@
 
 # Build the Molecule instance configuration object
 - name: Process instance configuration
-  when: __platform_instance_config is truthy or __platform_new_instance_configs is defined
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/instance_config.yml"
-  loop: "{{ __platform_new_instance_configs if __platform_new_instance_configs is defined else __platform_instance_config | default([], true) }}"
+  when: __platform_instance_config is truthy or platform_exported_config is defined
+  loop: >-
+    {{
+      platform_exported_config | dict2items
+      if platform_exported_config is defined
+      else
+      __platform_instance_config | default([], true)
+    }}
   loop_control:
     loop_var: __platform_target_instance_config
     label: "{{ __platform_target_instance_config.instance }}"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/instance_config.yml"
 
 - name: Manage molecule instance config file
   block:
@@ -123,5 +140,4 @@
     that: "'molecule' in groups"
     fail_msg: |
       molecule group was not found inside inventory groups: {{ groups }}
-
 
