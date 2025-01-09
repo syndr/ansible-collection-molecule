@@ -4,8 +4,14 @@
 # Filesystem location of the Molecule ephemeral directory. Should not need to be updated by the user of this role!
 platform_molecule_ephemeral_directory: "{{ molecule_ephemeral_directory }}"
 
+platform_instance_config_path: "{{ molecule_ephemeral_directory }}/instance_config.yml"
+platform_instance_config_from_file: "{{ (lookup('file', platform_instance_config_path, errors='ignore') or '[]') | from_yaml }}"
 
-## INTERNAL VARIABLES -- DO NOT MODIFY ##
+platform_inventory_config_path: "{{ molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+platform_inventory_config_from_file: "{{ (lookup('file', platform_inventory_config_path, errors='ignore') or '{}') | from_yaml }}"
+
+
+##⬇⬇ INTERNAL VARIABLES -- DO NOT MODIFY ⬇⬇##
 
 # Does the molecule instance configuration file need to be updated? (assume yes)
 __platform_instance_config_update_needed: true

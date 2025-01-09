@@ -159,20 +159,3 @@
       Stdout: {{ __docker_platform_logfile_cmd.stdout }}
       Stderr: {{ __docker_platform_logfile_cmd.stderr }}
 
-- name: Create Platform | Export platform configuration
-  ansible.builtin.set_fact:
-    platform_exported_config: >-
-      {%- set __platform_instances = {} -%}
-      {%- for __platform in __platform_config -%}
-        {%- set _ = __platform_instances.update({
-          __platform.name: {
-            'hostvars': __platform.hostvars | combine(docker_platform_hostvars_base),
-            'instance_config': {
-              'name': __platform.name,
-              'connection': 'docker'
-            }
-          }
-        }) -%}
-      {%- endfor -%}
-      {{ __platform_instances }}
-

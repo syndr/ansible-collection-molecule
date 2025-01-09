@@ -1,2 +1,11 @@
 ---
 # vars file for ec2_platform
+
+# Base hostvars for EC2 instances that should always be present
+ec2_platform_hostvars_base:
+  ansible_connection: ssh
+  ansible_host: "{{ ec2_platform_instance_config.address }}"
+  ansible_port: "{{ ec2_platform_instance_config.port }}"
+  ansible_user: "{{ ec2_platform_instance_config.user }}"
+  ansible_ssh_private_key_file: "{{ ec2_platform_instance_config.identity_file }}"
+

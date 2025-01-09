@@ -58,7 +58,6 @@ scenario:
   create_sequence:
     - dependency
     - create
-    - prepare
   check_sequence:
     - dependency
     - cleanup

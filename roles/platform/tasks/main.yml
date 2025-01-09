@@ -1,17 +1,9 @@
 ---
 # tasks file for platform
 
-- name: Dump hostvars
-  ansible.builtin.debug:
-    var: vars
-
-- name: Show platform configuration
-  ansible.builtin.debug:
-    var: platform_config
-
 - name: Process provided platform configuration
   vars:
-    __platform_config: "{{ platform_molecule_cfg if platform_molecule_cfg is truthy else platform_config }}"
+    __platform_config: "{{ [platform_molecule_cfg] if platform_molecule_cfg is truthy else platform_config }}"
   block:
     - name: Validate platform configuration
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_cfg.yml"
