@@ -3,5 +3,7 @@
 collections:
   - name: community.general
   - name: community.docker
+  - name: community.crypto
   - name: syndr.molecule
+  - name: amazon.aws
 
