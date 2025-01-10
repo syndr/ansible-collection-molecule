@@ -16,7 +16,7 @@
         | list
       }}
   when: __docker_platform_config_custom | length > 0
-  ansible.builtin.include_tasks: "{{ role_path }}/tasks/custom_image.yml"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/custom_image/main.yml"
 
 - name: Create Platform | Docker container is provisioned
   loop: "{{ docker_platform_config }}"
@@ -27,6 +27,7 @@
     __docker_platform_container_cfg:
       name: "{{ __docker_platform_instance.name}}"
       image: "{{ __docker_platform_instance.image | default(docker_platform_container_defaults.image) }}"
+      hostname: "{{ __docker_platform_instance.hostname | default(docker_platform_container_defaults.hostname) }}"
       command: "{{ __docker_platform_instance.command | default(docker_platform_container_defaults.command) }}"
       volumes: "{{ __docker_platform_instance.volumes | default(docker_platform_container_defaults.volumes) }}"
       privileged: "{{ __docker_platform_instance.privileged | default(docker_platform_container_defaults.privileged) }}"
@@ -58,7 +59,7 @@
     state: "{{ __docker_platform_container_cfg.state }}"
     command: "{{ __docker_platform_container_cfg.command }}"
     log_driver: json-file
-    hostname: molecule-ci-{{ __docker_platform_container_cfg.name }}
+    hostname: "{{ __docker_platform_container_cfg.hostname }}"
     init: false
     cgroupns_mode: "{{ 'host' if __docker_platform_container_cfg.systemd is true else 'private' }}"
     privileged: "{{ __docker_platform_container_cfg.privileged }}"

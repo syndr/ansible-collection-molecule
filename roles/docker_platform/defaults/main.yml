@@ -24,6 +24,9 @@ docker_platform_container_defaults:
   # Command to run in the container
   command: ""
 
+  # Container hostname
+  hostname: molecule-ci-{{ __docker_platform_instance.name }}
+
   # Number of CPUs to allocate to the container
   cpus: 2
 

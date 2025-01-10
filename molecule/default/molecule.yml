@@ -12,15 +12,19 @@ platforms:
     type: docker
     image: geerlingguy/docker-rockylinux9-ansible:latest
     systemd: True
-    modify_image: False
     privileged: False
     hostvars:
       test_hostvar: test
+  - name: ansible-collection-molecule-docker-rockylinux9-customized
+    type: docker
+    image: rockylinux/rockylinux:9-ubi
+    systemd: True
+    exec_systemd: True
+    privileged: False
   - name: ansible-collection-molecule-docker-fedora41
     type: docker
     image: geerlingguy/docker-fedora41-ansible:latest
     systemd: True
-    modify_image: False
     privileged: False
     hostvars:
       test_hostvar: test
@@ -28,7 +32,6 @@ platforms:
     type: docker
     image: geerlingguy/docker-ubuntu2204-ansible:latest
     systemd: True
-    modify_image: False
     privileged: False
     hostvars:
       test_hostvar: test

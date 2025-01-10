@@ -1,5 +1,5 @@
 
-FROM {{ docker_platform_image }}
+FROM {{ __docker_platform_definition.image }}
 COPY bash.service /etc/systemd/system/bash.service
 COPY entrypoint.sh /entrypoint.sh
 RUN chown root:root /entrypoint.sh \

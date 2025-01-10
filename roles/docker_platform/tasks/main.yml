@@ -19,7 +19,7 @@
       {%- for __platform in __platform_config -%}
         {%- set _ = __platform_instances.update({
           __platform.name: {
-            'hostvars': __platform.hostvars | combine(docker_platform_hostvars_base),
+            'hostvars': __platform.hostvars | default({}) | combine(docker_platform_hostvars_base),
             'instance_config': {
               'instance': __platform.name,
               'connection': 'docker'
