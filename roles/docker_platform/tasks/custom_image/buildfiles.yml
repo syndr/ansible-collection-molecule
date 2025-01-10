@@ -12,9 +12,8 @@
     mode: "0755"
 
 - name: Exec Systemd | Build file exists
+  # Add additional build files to this list as needed
   loop:
-    - bash.service.j2
-    - entrypoint.sh.j2
     - Dockerfile.j2
   loop_control:
     loop_var: __docker_platform_item

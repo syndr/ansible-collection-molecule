@@ -20,7 +20,11 @@ platforms:
     image: rockylinux/rockylinux:9-ubi
     systemd: True
     exec_systemd: True
+    exec_systemd_build_commands:
+      - dnf install -y sudo
     privileged: False
+    hostvars:
+      test_hostvar: test
   - name: ansible-collection-molecule-docker-fedora41
     type: docker
     image: geerlingguy/docker-fedora41-ansible:latest

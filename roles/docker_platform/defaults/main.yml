@@ -25,7 +25,7 @@ docker_platform_container_defaults:
   command: ""
 
   # Container hostname
-  hostname: molecule-ci-{{ __docker_platform_instance.name }}
+  hostname: molecule-ci-{{ __docker_platform_instance.name | default('instance') }}
 
   # Number of CPUs to allocate to the container
   cpus: 2
@@ -101,11 +101,19 @@ docker_platform_container_defaults:
   #  WARNING:
   #  - This can cause issues with some containers
   #  - Not required if the container is already built with systemd running as PID 1
-  #  - Expects the container to have systemd installed
+  #  - Expects the container to have systemd packages present
+  #  - Rebuilds the container with a custom entrypoint, provided by 'exec_systemd_path'
   exec_systemd: false
 
   # Path to the systemd binary in the container
+  #  - This is only used if 'exec_systemd' is true
   exec_systemd_path: /usr/lib/systemd/systemd
+
+  # List of commands to run as part of the docker build process to enable systemd
+  #  - This is only used if 'exec_systemd' is true
+  #  - Each command should be a string
+  #  - Commands are run in the order they are defined, using the docker RUN directive
+  exec_systemd_build_commands: []
 
   # Tmpfs mounts to add to the container
   tmpfs: []
