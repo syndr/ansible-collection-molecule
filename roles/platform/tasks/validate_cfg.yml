@@ -5,7 +5,7 @@
 #  - __platform_config: The current list of platform configurations
 #
 
-- name: Show platform config
+- name: Validate | Show platform config
   ansible.builtin.debug:
     var: __platform_config
     verbosity: 1
@@ -17,16 +17,6 @@
       - __platform_config | length > 0
     fail_msg: "No platform configuration provided, or platform configuration invalid!"
     success_msg: "Platform configuration provided."
-
-- name: Show first item
-  ansible.builtin.debug:
-    var: __platform_config[0]
-    verbosity: 1
-
-- name: Show first item name
-  ansible.builtin.debug:
-    var: __platform_config[0].name
-    verbosity: 1
 
 - name: Validate | Unique attributes
   ansible.builtin.assert:

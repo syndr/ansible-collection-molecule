@@ -49,15 +49,25 @@
     __platform_merged_instance_config: >-
       {{
         platform_instance_config_from_file
-        | rejectattr('instance', 'in', __platform_old_instance_configs | map(attribute='instance') | list)
+        | rejectattr('instance', 'in', platform_exported_config | selectattr('instance_config', 'defined') | map(attribute='instance_config') | list)
         | list
       }}
 
 - name: Platform Instance Config | Write new instance configuration
-  when: __platform_merged_instance_config is defined
+  when:
+    - __platform_merged_instance_config is defined
+    - __platform_merged_instance_config | length > 0
   ansible.builtin.copy:
     content: |
       {{ __platform_merged_instance_config | to_nice_yaml(indent=2) }}
     dest: "{{ platform_molecule_ephemeral_directory }}/instance_config.yml"
     mode: "0644"
+
+- name: Platform Instance Config | Remove instance configuration file
+  when:
+    - __platform_merged_instance_config is not defined
+    - __platform_merged_instance_config | length == 0
+  ansible.builtin.file:
+    path: "{{ platform_molecule_ephemeral_directory }}/instance_config.yml"
+    state: absent
 

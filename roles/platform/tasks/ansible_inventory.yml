@@ -67,7 +67,7 @@
     var: __platform_ansible_existing_unreferenced_hosts
     verbosity: 1
 
-- name: Platform Molecule Inventory | Build inventory object
+- name: Build and manage inventory file
   vars:
     __platform_ansible_hosts_present: >-
       {{
@@ -76,28 +76,38 @@
         if platform_state == 'present'
         else __platform_ansible_existing_unreferenced_hosts
       }}
-  ansible.builtin.set_fact:
-    __platform_molecule_inventory: >-
-      {{
-        platform_inventory_config_from_file
-        | combine({
-          'all': {
-            'children': {
-              'molecule': {
-                'hosts': __platform_ansible_hosts_present
+  block:
+    - name: Platform Molecule Inventory | Build inventory object
+      ansible.builtin.set_fact:
+        __platform_molecule_inventory: >-
+          {{
+            platform_inventory_config_from_file
+            | combine({
+              'all': {
+                'children': {
+                  'molecule': {
+                    'hosts': __platform_ansible_hosts_present
+                  }
+                }
               }
-            }
-          }
-        })
-      }}
+            })
+          }}
 
+    - name: Platform Molecule Inventory | Write inventory file
+      when:
+        - __platform_ansible_hosts_present is truthy
+      ansible.builtin.copy:
+        content: |
+          {{ __platform_molecule_inventory | to_nice_yaml(indent=2) }}
+        dest: "{{ platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+        mode: '0644'
 
-- name: Platform Molecule Inventory | Write inventory file
-  ansible.builtin.copy:
-    content: |
-      {{ __platform_molecule_inventory | to_nice_yaml(indent=2) }}
-    dest: "{{ platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
-    mode: '0644'
+    - name: Platform Molecule Inventory | Remove inventory file
+      when:
+        - __platform_ansible_hosts_present is not truthy
+      ansible.builtin.file:
+        path: "{{ platform_molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+        state: absent
 
 - name: Platform Molecule Inventory | Force inventory refresh
   ansible.builtin.meta: refresh_inventory

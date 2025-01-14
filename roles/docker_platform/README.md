@@ -52,6 +52,9 @@ cap_drop: []
 # Command to run in the container
 command: ""
 
+# Container hostname
+hostname: molecule-ci-{{ __docker_platform_instance.name | default('instance') }}
+
 # Number of CPUs to allocate to the container
 cpus: 2
 
@@ -87,9 +90,6 @@ dns_servers: []
 
 # The URL or Unix socket path used to connect to the Docker API
 docker_host: "{{ lookup('env', 'DOCKER_HOST') | default('unix:///var/run/docker.sock') }}"
-
-# Path to a file, present on the controller, containing environment variables FOO=BAR
-env_file: ""
 
 # Dict of host-to-IP mappings, where each host name is a key in the dictionary. Each host name will be added to the container’s /etc/hosts file.
 #  Instead of an IP address, the special value host-gateway can also be used, which resolves to the host’s gateway
@@ -129,11 +129,19 @@ systemd: false
 #  WARNING:
 #  - This can cause issues with some containers
 #  - Not required if the container is already built with systemd running as PID 1
-#  - Expects the container to have systemd installed
+#  - Expects the container to have systemd packages present
+#  - Rebuilds the container with a custom entrypoint, provided by 'exec_systemd_path'
 exec_systemd: false
 
 # Path to the systemd binary in the container
+#  - This is only used if 'exec_systemd' is true
 exec_systemd_path: /usr/lib/systemd/systemd
+
+# List of commands to run as part of the docker build process to enable systemd
+#  - This is only used if 'exec_systemd' is true
+#  - Each command should be a string
+#  - Commands are run in the order they are defined, using the docker RUN directive
+exec_systemd_build_commands: []
 
 # Tmpfs mounts to add to the container
 tmpfs: []
@@ -148,7 +156,6 @@ tmpfs: []
 #
 # SELinux hosts can additionally use z or Z to use a shared or private label for the volume.
 volumes: []
-
 ```
 
 This role should not be used directly in a playbook, and should instead be used via the `molecule.platform` role.
