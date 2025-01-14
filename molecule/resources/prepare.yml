@@ -24,12 +24,20 @@
         cmd: ansible-galaxy collection build --force
       register: build_result
 
-    - name: Install collection
-      vars:
-        collection_archive_path: "{{ build_result.stdout | regex_replace('.*\\s+(\\S+\\.tar\\.gz)', '\\1') }}"
-      ansible.builtin.command:
-        chdir: "{{ playbook_dir }}/../../"
-        cmd: ansible-galaxy collection install --force {{ collection_archive_path }}
+    # WARNING: This can cause problems if the current state of the collection in this project is borked!
+    - name: Link current collection version for controller
+      block:
+        - name: Molecule scenario collection path exists
+          ansible.builtin.file:
+            path: "{{ molecule_ephemeral_directory }}/collections/ansible_collections/{{ collection_namespace }}"
+            state: directory
+            mode: 0755
+
+        - name: Molecule scenario collection link exists
+          ansible.builtin.file:
+            path: "{{ molecule_ephemeral_directory }}/collections/ansible_collections/{{ collection_namespace }}/{{ collection_name }}"
+            src: "{{ playbook_dir }}/../../"
+            state: link
 
 - name: Prepare target host for execution
   hosts: molecule
