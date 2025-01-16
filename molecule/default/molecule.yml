@@ -45,7 +45,7 @@ provisioner:
   playbooks:
     create: ../resources/create.yml
     prepare: ../resources/prepare.yml
-    converge: converge.yml
+    converge: ../resources/converge.yml
     side_effect: ../resources/side_effect.yml
     verify: ../resources/verify.yml
     cleanup: ../resources/cleanup.yml

@@ -223,7 +223,7 @@
   delay: 10
   changed_when: false
 
-- name: EC2 Provision | Launch SSH connectivity check tasks
+- name: EC2 Provision | SSH connectivity check is successful
   loop: "{{ ec2_platforms }}"
   loop_control:
     loop_var: __ec2_platform
@@ -242,20 +242,4 @@
   until: "'Connection reset by peer' not in __ec2_platform_ssh_connectivity_check.module_stderr | default('')"
   retries: 6
   delay: 10
-  async: 330
-  poll: 0
-  changed_when: false
-
-- name: EC2 Provision | SSH connectivity is successful
-  loop: "{{ __ec2_platform_ssh_connectivity_check.results }}"
-  loop_control:
-    loop_var: __ec2_platform_ssh_connectivity_check_result
-    label: "{{ __ec2_platform_ssh_connectivity_check_result.__ec2_platform.name }}"
-  ansible.builtin.async_status:
-    jid: "{{ __ec2_platform_ssh_connectivity_check_result.ansible_job_id }}"
-  register: __ec2_platform_ssh_connectivity_check_results
-  until: __ec2_platform_ssh_connectivity_check_results.finished
-  retries: 60
-  delay: 10
-  changed_when: false
 

@@ -19,7 +19,6 @@
 - name: Remove {{ __platform_config | length }} Molecule platform(s)
   vars:
     __platform_type: "{{ __platform_config | map(attribute='type') | first }}"
-    platform_target_config: "{{ __platform_config }}"
     platform_target_state: absent
   ansible.builtin.include_role:
     name: "{{ ansible_collection_name }}.{{ __platform_type }}_platform"

@@ -58,6 +58,7 @@
     #           ansible_user: molecule_runner
     ##
     - name: Create ansible service account
+      become: true
       block:
         - name: Create ansible group
           ansible.builtin.group:
@@ -111,6 +112,7 @@
 
     - name: Install packages
       # NOTE: If testing with a distro not mentioned in this block, you'll need to add code for it here!
+      become: true
       block:
         - name: Install packages for ubuntu
           block:
@@ -130,6 +132,7 @@
                 pkg:
                   - ansible
                   - wget
+                  - acl
           when: ansible_distribution | lower == 'ubuntu'
 
         - name: Install packages (RHEL Family)
@@ -158,6 +161,7 @@
           ansible.builtin.file:
             path: ~/.ansible/collections/ansible_collections
             state: directory
+            mode: "0755"
 
         - name: Project dir does not exist (Clean Slate 󰩸)
           ansible.builtin.file:
@@ -168,6 +172,7 @@
           ansible.builtin.file:
             path: ~/.ansible/collections/ansible_collections/{{ collection_namespace }}/{{ collection_name }}
             state: directory
+            mode: "0755"
 
         - name: Deploy project to host
           ansible.builtin.unarchive:

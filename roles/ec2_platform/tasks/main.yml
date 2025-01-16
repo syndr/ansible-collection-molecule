@@ -6,9 +6,9 @@
     var: ec2_platform_definition
     verbosity: 1
 
-- name: 🦋 Show ec2_platform
+- name: 🦋 Show ec2_platforms
   ansible.builtin.debug:
-    var: ec2_platform
+    var: ec2_platforms
     verbosity: 1
 
 - name: Validate configuration
