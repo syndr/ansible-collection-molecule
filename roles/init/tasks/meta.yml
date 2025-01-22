@@ -35,7 +35,7 @@
   ansible.builtin.assert:
     that:
       - __init_collection_meta is truthy
-      - __init_collection_meta is mappint
+      - __init_collection_meta is mapping
       - __init_collection_meta.name is defined
       - __init_collection_meta.version is defined
       - __init_collection_meta.namespace is defined
@@ -47,7 +47,8 @@
   ansible.builtin.set_fact:
     __init_collection_version: >-
       {{ init_collection_version if init_collection_version is truthy
-      else __init_collection_meta.collection_info.version | default(init_collection_defaults.version) }}
-    __init_collection_name: "{{ __init_collection_meta.collection_info.name | default(init_collection_defaults.name) }}"
-    __init_collection_namespace: "{{ __init_collection_meta.collection_info.namespace | default(init_collection_defaults.namespace) }}"
-    __init_collection_repository: "{{ __init_collection_meta.collection_info.repository | default(init_collection_defaults.repository) }}"
+      else __init_collection_meta.version }}
+    __init_collection_name: "{{ __init_collection_meta.name }}"
+    __init_collection_namespace: "{{ __init_collection_meta.namespace }}"
+    __init_collection_repository: "{{ __init_collection_meta.repository }}"
+

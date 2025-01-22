@@ -10,17 +10,17 @@ driver:
     login_cmd_template: 'docker exec -ti {instance} bash --login'
 {% endif %}
 platforms:
-{% for init_platform in init_platforms %}
+  # See platform documentation at {{ __init_collection_repository }}/tree/main/roles/{{ init_platform_type }}_platform/README.md
+{% for init_platform in __init_runtime_platforms %}
   - name: {{ init_platform.name | default('docker-platform') }}
     type: {{ init_platform.type }}
-    # See platform documentation at {{ __init_collection_repository }}/tree/main/roles/{{ init_platform.type }}_platform/README.md
-    {%- for key, value in init_platform.items() -%}
-    {%- if key not in ['name', 'type', 'hostvars'] %}
+{% for key, value in init_platform.items() -%}
+{% if key not in ['name', 'type', 'hostvars'] %}
     {{ key }}: {{ value }}
-    {% endif -%}
-    {%- endfor %}
+{% endif %}
+{%- endfor %}
     hostvars: {{ init_platform.hostvars | default({}) }}
-  {% endfor %}
+{% endfor %}
 provisioner:
   name: ansible
   log: True

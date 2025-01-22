@@ -14,13 +14,18 @@
 - name: Deploy Molecule configuration files
   vars:
     __init_scenario_dir: "{{ init_scenario_dir if init_scenario_dir.split('/')[-2] == 'molecule' else init_scenario_dir + '/default' }}"
-    __init_resources_dir: "{{ __init_scenario_dir.split('/')[:-2] | join('/') }}/resources"
+    __init_resources_dir: "{{ __init_scenario_dir.split('/')[:-1] | join('/') }}/resources"
     __init_scenario_name: "{{ init_scenario_dir | basename }}"
   block:
-    - name: Create molecule scenario directory
+    - name: Create molecule directory
       # Assume that we're inside a 'molecule' directory (checked via asserts.yml)
+      loop:
+        - "{{ __init_scenario_dir }}"
+        - "{{ __init_resources_dir }}"
+      loop_control:
+        loop_var: __init_directory
       ansible.builtin.file:
-        path: "{{ __init_scenario_dir }}"
+        path: "{{ __init_directory }}"
         state: directory
         mode: "0755"
 
@@ -47,8 +52,9 @@
       ansible.builtin.template:
         src: "{{ role_path }}/templates/{{ __init_item }}.j2"
         dest: "{{ __init_resources_dir }}/{{ __init_item }}"
-        mode: 0644
+        mode: "0644"
         backup: "{{ init_file_backup }}"
+        force: "{{ init_overwrite_resources }}"
 
     - name: Link Ansible dependency
       loop:

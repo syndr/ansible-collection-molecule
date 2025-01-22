@@ -76,7 +76,7 @@
       - init_platform_defaults is defined
       - init_platform_defaults | type_debug == 'dict'
     fail_msg: Unable to find platform defaults! Add support to the 'init' role for the platform '{{ init_platform_type }}'.
-    success_msg: Platform defaults found.
+    success_msg: Platform defaults found. Defaults are '{{ init_platform_defaults }}'
 
 - name: Validate runtime platform configuration
   ansible.builtin.assert:
@@ -85,6 +85,9 @@
       - __init_runtime_platforms | map(attribute='name') | unique | length == __init_runtime_platforms | length
       - __init_runtime_platforms | map(attribute='type') | unique | length == 1
       - __init_runtime_platforms | length > 0
-    fail_msg: Runtime platform configuration is not sane!
-    success_msg: Sanity check passed.
+    fail_msg: >
+      Runtime platform configuration is not sane!
+      Platform configuration:
+      {{ __init_runtime_platforms }}
+    success_msg: Sanity check passed with platforms '{{ __init_runtime_platforms }}'
 
