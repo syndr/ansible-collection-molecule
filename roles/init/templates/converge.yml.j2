@@ -3,6 +3,7 @@
 # Note that this playbook (converge.yml) must be idempotent!
 
 # Check that the molecule inventory is correctly configured
+{% raw -%}
 - name: Fail if molecule group is missing
   hosts: localhost
   tasks:
@@ -50,3 +51,4 @@
       ansible.builtin.debug:
         msg: Typically this will be via the ansible.builtin.include_role module or via import_playbook
 
+{% endraw %}

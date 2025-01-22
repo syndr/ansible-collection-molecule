@@ -15,3 +15,6 @@ __init_supported_platform_types:
   - docker
   - ec2
 
+# The platforms to be configured by this role
+__init_runtime_platforms: "{{ init_platforms | combine(init_platforms_defaults) }}"
+
