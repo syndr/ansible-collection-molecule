@@ -101,6 +101,15 @@
       retries: "{{ (300 / 5) | int }}"
       delay: 5
 
+    - name: EC2 Deprovision | Clean up async cache
+      loop: "{{ __ec2_instance_destroy_job.results }}"
+      loop_control:
+        loop_var: __ec2_instance_destroy_result
+        label: "{{ __ec2_instance_destroy_result.__ec2_platform_existing_instance.tags.instance }}"
+      ansible.builtin.async_status:
+        jid: "{{ __ec2_instance_destroy_result.ansible_job_id }}"
+        mode: cleanup
+
 - name: EC2 Deprovision | Destroy ephemeral security groups (if needed)
   loop: "{{ ec2_platforms | selectattr('security_groups', 'falsy') }}"
   loop_control:

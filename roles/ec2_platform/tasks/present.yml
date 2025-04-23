@@ -171,6 +171,15 @@
   # TODO: Update 'changed_when' to reflect the actual state of the task
   changed_when: false
 
+- name: EC2 Provision | Clean up async cache
+  loop: "{{ __ec2_instance_creation_jobs.results }}"
+  loop_control:
+    loop_var: __ec2_instance_creation_job
+    label: "{{ __ec2_instance_creation_job.__ec2_platform.name }}"
+  ansible.builtin.async_status:
+    jid: "{{ __ec2_instance_creation_job.ansible_job_id }}"
+    mode: cleanup
+
 - name: EC2 Provision | Print instance creation result
   ansible.builtin.debug:
     var: __ec2_instance_creation_results
@@ -222,6 +231,15 @@
   retries: "{{ (__ec2_platform_boot_wait_result.__ec2_platform.boot_wait_seconds | int / 10) | int }}"
   delay: 10
   changed_when: false
+
+- name: EC2 Provision | Clean up async cache
+  loop: "{{ __ec2_platform_boot_wait_job.results }}"
+  loop_control:
+    loop_var: __ec2_platform_boot_wait_result
+    label: "{{ __ec2_platform_boot_wait_result.__ec2_platform.name }}"
+  ansible.builtin.async_status:
+    jid: "{{ __ec2_platform_boot_wait_result.ansible_job_id }}"
+    mode: cleanup
 
 - name: EC2 Provision | SSH connectivity check is successful
   loop: "{{ ec2_platforms }}"
