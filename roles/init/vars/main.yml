@@ -15,3 +15,14 @@ __init_supported_platform_types:
   - docker
   - ec2
 
+# The platforms to be configured by this role
+__init_runtime_platforms: >-
+   {%- set __init_platforms = [] -%}
+   {%- for __init_platform in init_platforms -%}
+      {%- set _ = __init_platforms.append(init_platform_defaults | combine(__init_platform, recursive=True)) -%}
+   {%- endfor -%}
+   {%- if __init_platforms | length == 0 -%}
+      {%- set __init_platforms = [init_platform_defaults] -%}
+   {%- endif -%}
+   {{ __init_platforms }}
+
