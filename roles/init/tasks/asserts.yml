@@ -8,7 +8,7 @@
       - init_scenario_dir is string
       - init_project_dir is string
       - init_file_backup in [true, false]
-      - init_platform_type in ['docker', 'ec2']
+      - init_platform_type is truthy
       - init_collection_version is string
       - init_collection_source in ['galaxy', 'git']
     fail_msg: Global configuration option for init role is not sane
@@ -87,6 +87,8 @@
       - __init_runtime_platforms | length > 0
     fail_msg: >
       Runtime platform configuration is not sane!
+      Only one platform type is supported per scenario.
+      Unique platform names are required.
       Platform configuration:
       {{ __init_runtime_platforms }}
     success_msg: Sanity check passed with platforms '{{ __init_runtime_platforms }}'

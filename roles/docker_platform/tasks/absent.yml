@@ -4,7 +4,7 @@
   ansible.builtin.debug:
     msg: "{{ docker_platform_config | map(attribute='name') | list | join(', ') }}"
 
-- name: Stop and remove container
+- name: Destroy Platform | Stop and remove container
   loop: "{{ docker_platform_config }}"
   loop_control:
     loop_var: __docker_platform_instance

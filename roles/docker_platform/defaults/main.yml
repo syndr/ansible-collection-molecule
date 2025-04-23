@@ -129,3 +129,7 @@ docker_platform_container_defaults:
   # SELinux hosts can additionally use z or Z to use a shared or private label for the volume.
   volumes: []
 
+# Ansible hostvars that should be associated with the ansible test "host" created by this role
+#  stored in the format `name: value`
+docker_platform_hostvars: {}
+

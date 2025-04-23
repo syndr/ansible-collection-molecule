@@ -175,14 +175,6 @@ To utilize this role, use the `platform` role that is included with this collect
     - name: Create platform(s)
       ansible.builtin.include_role:
         name: syndr.molecule.platform
-      vars:
-        platform_name: "{{ item.name }}"
-        platform_state: present
-        platform_type: "{{ item.type }}"
-        platform_molecule_cfg: "{{ item }}"
-      loop: "{{ molecule_yml.platforms }}"
-      loop_control:
-        label: item.name
 
 # We want to avoid errors like "Failed to create temporary directory"
 - name: Validate that inventory was refreshed
