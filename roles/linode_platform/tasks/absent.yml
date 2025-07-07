@@ -1,0 +1,79 @@
+---
+# Remove Linode test resources
+
+- name: Linode Deprovision | Look up Linode instances by tag
+  linode.cloud.instance_list:
+  register: __linode_instance_info
+
+- name: Linode Deprovision | Set instances to destroy
+  vars:
+    __all_instances: "{{ __linode_instance_info.instances }}"
+    __target_tag: "molecule-run-id:{{ linode_platform_run_config.run_id | default('') }}"
+    __linode_platform_existing_instances: "{{ __all_instances | selectattr('tags', 'contains', __target_tag) | list }}"
+  ansible.builtin.set_fact:
+    __linode_instances_to_destroy: "{{ __linode_platform_existing_instances }}"
+
+- name: Linode Deprovision | Validate safety of destroy operation
+  ansible.builtin.assert:
+    that:
+      - __linode_instances_to_destroy | length <= linode_platforms | length
+    fail_msg: "More instances found than expected! Found {{ __linode_instances_to_destroy | length }} instances."
+    success_msg: "{{ __linode_instances_to_destroy | length }} instances found for termination."
+
+- name: Linode Deprovision | Remove instances
+  when: __linode_instances_to_destroy | length > 0
+  block:
+    - name: Linode Deprovision | Destroy ephemeral Linode instances
+      loop: "{{ __linode_instances_to_destroy }}"
+      loop_control:
+        loop_var: __linode_instance_to_destroy
+        label: "{{ __linode_instance_to_destroy.label }}"
+      linode.cloud.instance:
+        label: "{{ __linode_instance_to_destroy.label }}"
+        state: absent
+      register: __linode_instance_destroy_jobs
+      async: 300
+      poll: 0
+
+    - name: Linode Deprovision | Instance destruction is complete
+      loop: "{{ __linode_instance_destroy_jobs.results }}"
+      loop_control:
+        loop_var: __linode_instance_destroy_job
+        label: "{{ __linode_instance_destroy_job.__linode_instance_to_destroy.label }}"
+      ansible.builtin.async_status:
+        jid: "{{ __linode_instance_destroy_job.ansible_job_id }}"
+      register: __linode_instance_destroy_results
+      until: __linode_instance_destroy_results.finished
+      retries: "{{ (300 / 5) | int }}"
+      delay: 5
+
+    - name: Linode Deprovision | Clean up async cache
+      loop: "{{ __linode_instance_destroy_jobs.results }}"
+      loop_control:
+        loop_var: __linode_instance_destroy_job
+        label: "{{ __linode_instance_destroy_job.__linode_instance_to_destroy.label }}"
+      ansible.builtin.async_status:
+        jid: "{{ __linode_instance_destroy_job.ansible_job_id }}"
+        mode: cleanup
+
+    - name: Linode Deprovision | Destroy ephemeral SSH keys
+      loop: "{{ __linode_instances_to_destroy }}"
+      loop_control:
+        loop_var: __linode_instance_destroyed
+        label: "{{ __linode_instance_destroyed.label }}"
+      vars:
+        __ssh_key_label: "molecule-{{ linode_platform_run_config.run_id | default('') }}-{{ __linode_instance_destroyed.tags | select('match', '^instance:.*') | map('regex_replace', '^instance:', '') | first }}"
+      linode.cloud.ssh_key:
+        label: "{{ __ssh_key_label }}"
+        state: absent
+      failed_when: false  # SSH keys might already be cleaned up
+
+- name: Linode Deprovision | Remove linode instance config file  
+  # Only run when this execution is operating on the full scenario configuration
+  #  - we want to avoid removing the instance config if there may still be deployed instances
+  #    (IE: if this role is called on individual items in the platforms list)
+  #  - Molecule's builtin ephemeral dir cleanup should remove the instance config in this case
+  when: linode_platform_definition | length == molecule_yml.platforms | default([]) | length
+  ansible.builtin.file:
+    path: "{{ linode_platform_run_config_path }}"
+    state: absent

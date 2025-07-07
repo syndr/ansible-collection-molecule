@@ -1,0 +1,56 @@
+---
+# defaults file for linode_platform
+
+# Name of this Molecule platform
+linode_platform_name: instance
+
+# Whether this platform should be deployed (present/absent)
+linode_platform_state: "{{ platform_target_state | default('present') }}"
+
+# Molecule platform configuration (list of dictionaries)
+linode_platform_definition: "{{ [platform_target_config] if platform_target_config is defined else (molecule_yml.platforms | default([])) }}"
+
+# Merge the defaults with any options provided to this role
+linode_platforms: >-
+  {%- set __platforms = [] -%}
+  {%- for __platform in linode_platform_definition -%}
+    {%- set __platform = linode_platform_defaults | combine(__platform) -%}
+    {%- set _ = __platforms.append(__platform) -%}
+  {%- endfor -%}
+  {{ __platforms }}
+
+# Run config handling - prioritize existing run ID from file
+linode_platform_default_run_id: "{{ linode_platform_run_config_from_file.run_id | default(lookup('password', '/dev/null chars=ascii_lowercase length=5')) }}"
+linode_platform_default_run_config:
+  run_id: "{{ linode_platform_default_run_id }}"
+
+linode_platform_run_config_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/linode-platform-run-config.yml"
+linode_platform_run_config_from_file: "{{ (lookup('file', linode_platform_run_config_path, errors='ignore') or '{}') | from_yaml }}"
+linode_platform_run_config: '{{ linode_platform_default_run_config | combine(linode_platform_run_config_from_file) }}'
+
+# Platform settings handling
+linode_platform_default_boot_wait_seconds: 10
+linode_platform_default_instance_creation_timeout: 300
+linode_platform_default_type_spec: g6-nanode-1
+linode_platform_default_region: us-east
+linode_platform_default_private_key_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/id_rsa"
+linode_platform_default_public_key_path: "{{ linode_platform_default_private_key_path }}.pub"
+linode_platform_default_ssh_user: root
+linode_platform_default_ssh_port: 22
+linode_platform_default_stackscript_id: ""
+linode_platform_default_stackscript_data: {}
+
+linode_platform_defaults:
+  boot_wait_seconds: "{{ linode_platform_default_boot_wait_seconds }}"
+  instance_creation_timeout: "{{ linode_platform_default_instance_creation_timeout }}"
+  type_spec: "{{ linode_platform_default_type_spec }}"
+  region: "{{ linode_platform_default_region }}"
+  private_key_path: "{{ linode_platform_default_private_key_path }}"
+  public_key_path: "{{ linode_platform_default_public_key_path }}"
+  ssh_user: "{{ linode_platform_default_ssh_user }}"
+  ssh_port: "{{ linode_platform_default_ssh_port }}"
+  stackscript_id: "{{ linode_platform_default_stackscript_id }}"
+  stackscript_data: "{{ linode_platform_default_stackscript_data }}"
+  image: ""
+  name: ""
+  tags: {}

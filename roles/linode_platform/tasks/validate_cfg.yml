@@ -1,0 +1,27 @@
+---
+# Validate Linode platform configuration
+
+- name: Validate required Linode configuration
+  loop: "{{ linode_platforms }}"
+  loop_control:
+    loop_var: __linode_platform
+    label: "{{ __linode_platform.name }}"
+  ansible.builtin.assert:
+    that:
+      - __linode_platform.name is defined
+      - __linode_platform.name | length > 0
+      - __linode_platform.image is defined
+      - __linode_platform.image | length > 0
+      - __linode_platform.region is defined
+      - __linode_platform.region | length > 0
+      - __linode_platform.type_spec is defined
+      - __linode_platform.type_spec | length > 0
+    fail_msg: "Platform '{{ __linode_platform.name | default('undefined') }}' is missing required configuration"
+    quiet: true
+
+- name: Validate LINODE_API_TOKEN is set
+  ansible.builtin.assert:
+    that:
+      - lookup('env', 'LINODE_API_TOKEN') | length > 0
+    fail_msg: "LINODE_API_TOKEN environment variable must be set"
+    quiet: true
