@@ -1,0 +1,179 @@
+---
+# Deploy desired Linode platform(s)
+#
+# Expected input:
+#  - linode_platform: The current Molecule platform configurations (list)
+#
+
+- name: Linode Provision | Write run config to file
+  ansible.builtin.copy:
+    dest: "{{ linode_platform_run_config_path }}"
+    content: "{{ linode_platform_run_config | to_yaml }}"
+    mode: "0600"
+
+- name: Linode Provision | Generate local key pairs
+  loop: "{{ linode_platforms }}"
+  loop_control:
+    loop_var: __linode_platform
+    label: "{{ __linode_platform.name }}"
+  community.crypto.openssh_keypair:
+    path: "{{ __linode_platform.private_key_path }}"
+    type: rsa
+    size: 2048
+    regenerate: never
+  register: __linode_platform_local_keypairs
+
+- name: Linode Provision | Create SSH keys in Linode
+  loop: "{{ linode_platforms }}"
+  loop_control:
+    loop_var: __linode_platform
+    label: "{{ __linode_platform.name }}"
+  vars:
+    __linode_platform_ssh_pubkey: "{{ (__linode_platform_local_keypairs.results | selectattr('__linode_platform.name', 'equalto', __linode_platform.name) | first).public_key }}"
+  linode.cloud.ssh_key:
+    label: "molecule-{{ linode_platform_run_config.run_id }}-{{ __linode_platform.name }}"
+    ssh_key: "{{ __linode_platform_ssh_pubkey }}"
+    state: present
+  register: __linode_platform_ssh_keys
+
+- name: Linode Provision | Create ephemeral Linode instances
+  loop: "{{ linode_platforms }}"
+  loop_control:
+    loop_var: __linode_platform
+    label: "{{ __linode_platform.name }}"
+  vars:
+    __linode_platform_ssh_pubkey: "{{ (__linode_platform_local_keypairs.results | selectattr('__linode_platform.name', 'equalto', __linode_platform.name) | first).public_key }}"
+    __linode_platform_generated_tags:
+      - "instance:{{ __linode_platform.name }}"
+      - "molecule-run-id:{{ linode_platform_run_config.run_id }}"
+      - "molecule-{{ __linode_platform.name }}"
+    __linode_platform_tags: "{{ __linode_platform_generated_tags + (__linode_platform.tags | default([]) | map('string') | list) }}"
+  linode.cloud.instance:
+    label: "molecule-{{ __linode_platform.name }}"
+    region: "{{ __linode_platform.region }}"
+    image: "{{ __linode_platform.image }}"
+    type: "{{ __linode_platform.type_spec }}"
+    authorized_keys:
+      - "{{ __linode_platform_ssh_pubkey }}"
+    tags: "{{ __linode_platform_tags }}"
+    stackscript_id: "{{ __linode_platform.stackscript_id if __linode_platform.stackscript_id else omit }}"
+    stackscript_data: "{{ __linode_platform.stackscript_data if __linode_platform.stackscript_data else omit }}"
+    state: present
+    wait_timeout: "{{ __linode_platform.instance_creation_timeout | int }}"
+  register: __linode_instance_creation_jobs
+  async: "{{ __linode_platform.instance_creation_timeout | int }}"
+  poll: 0
+  changed_when: false   # Asynchronous task, always marked as changed
+
+- name: Linode Provision | Print instance creation job status
+  ansible.builtin.debug:
+    var: __linode_instance_creation_jobs
+    verbosity: 1
+
+- name: Linode Provision | Instance creation is complete
+  loop: "{{ __linode_instance_creation_jobs.results }}"
+  loop_control:
+    loop_var: __linode_instance_creation_job
+    label: "{{ __linode_instance_creation_job.__linode_platform.name }}"
+  ansible.builtin.async_status:
+    jid: "{{ __linode_instance_creation_job.ansible_job_id }}"
+  register: __linode_instance_creation_results
+  until: __linode_instance_creation_results.finished
+  retries: "{{ (__linode_instance_creation_job.__linode_platform.instance_creation_timeout | int / 10) | int }}"
+  delay: 10
+  changed_when: false
+
+- name: Linode Provision | Clean up async cache
+  loop: "{{ __linode_instance_creation_jobs.results }}"
+  loop_control:
+    loop_var: __linode_instance_creation_job
+    label: "{{ __linode_instance_creation_job.__linode_platform.name }}"
+  ansible.builtin.async_status:
+    jid: "{{ __linode_instance_creation_job.ansible_job_id }}"
+    mode: cleanup
+
+- name: Linode Provision | Print instance creation result
+  ansible.builtin.debug:
+    var: __linode_instance_creation_results
+    verbosity: 1
+
+# Referenced in exported platform configuration -- see main.yml
+- name: Linode Provision | Collect instance configs
+  loop: "{{ __linode_instance_creation_results.results }}"
+  loop_control:
+    loop_var: __linode_instance_record
+    label: "{{ __linode_instance_record.__linode_instance_creation_job.__linode_platform.name }}"
+  vars:
+    __linode_platform_instance_definition: "{{ linode_platforms
+      | selectattr('name', 'equalto', __linode_instance_record.__linode_instance_creation_job.__linode_platform.name) | first }}"
+    __linode_platform_instance_data: "{{ __linode_instance_record.instance }}"
+    __linode_platform_instance:
+      instance: "{{ __linode_platform_instance_definition.name }}"
+      # Linode API returns IP addresses as arrays, extract first IP for export template compatibility or instance_config.yml will fail to create in the platform role and you will be sad and angry
+      address: "{{ (__linode_platform_instance_data.ipv4.public | default(__linode_platform_instance_data.ipv4) | default(__linode_platform_instance_data.ip_address)) | first }}"
+      user: "{{ __linode_platform_instance_definition.ssh_user }}"
+      port: "{{ __linode_platform_instance_definition.ssh_port }}"
+      identity_file: "{{ __linode_platform_instance_definition.private_key_path }}"
+      instance_id: "{{ __linode_platform_instance_data.id }}"
+      molecule_run_id: "{{ linode_platform_run_config.run_id }}"
+  ansible.builtin.set_fact:
+    linode_platform_instance_configs: "{{ linode_platform_instance_configs | default([]) + [__linode_platform_instance] }}"
+
+- name: Linode Provision | Show collected instance configs
+  ansible.builtin.debug:
+    var: linode_platform_instance_configs
+    verbosity: 1
+
+- name: Linode Provision | Launch boot wait tasks
+  loop: "{{ linode_platforms }}"
+  loop_control:
+    loop_var: __linode_platform
+    label: "{{ __linode_platform.name }}"
+  ansible.builtin.wait_for:
+    timeout: "{{ __linode_platform.boot_wait_seconds }}"
+  register: __linode_platform_boot_wait_job
+  async: "{{ __linode_platform.boot_wait_seconds | int + 10 }}" # Add 10 seconds to the timeout to allow for the wait_for task to complete
+  poll: 0
+  changed_when: false
+
+- name: Linode Provision | Wait for boot process to finish
+  loop: "{{ __linode_platform_boot_wait_job.results }}"
+  loop_control:
+    loop_var: __linode_platform_boot_wait_result
+    label: "{{ __linode_platform_boot_wait_result.__linode_platform.name }}"
+  ansible.builtin.async_status:
+    jid: "{{ __linode_platform_boot_wait_result.ansible_job_id }}"
+  register: __linode_platform_boot_wait_results
+  until: __linode_platform_boot_wait_results.finished
+  retries: "{{ (__linode_platform_boot_wait_result.__linode_platform.boot_wait_seconds | int / 10) | int }}"
+  delay: 10
+  changed_when: false
+
+- name: Linode Provision | Clean up async cache
+  loop: "{{ __linode_platform_boot_wait_job.results }}"
+  loop_control:
+    loop_var: __linode_platform_boot_wait_result
+    label: "{{ __linode_platform_boot_wait_result.__linode_platform.name }}"
+  ansible.builtin.async_status:
+    jid: "{{ __linode_platform_boot_wait_result.ansible_job_id }}"
+    mode: cleanup
+
+- name: Linode Provision | SSH connectivity check is successful
+  loop: "{{ linode_platforms }}"
+  loop_control:
+    loop_var: __linode_platform
+    label: "{{ __linode_platform.name }}"
+  vars:
+    __linode_platform_instance_config: "{{ linode_platform_instance_configs
+      | selectattr('instance', 'equalto', __linode_platform.name) | first }}"
+  ansible.builtin.wait_for:
+    host: "{{ __linode_platform_instance_config.address }}"
+    port: "{{ __linode_platform_instance_config.port }}"
+    search_regex: SSH
+    delay: 10
+    timeout: 320
+    msg: "SSH connectivity check to {{ __linode_platform_instance_config.address }} on port {{ __linode_platform_instance_config.port }} failed"
+  register: __linode_platform_ssh_connectivity_check
+  until: "'Connection reset by peer' not in __linode_platform_ssh_connectivity_check.module_stderr | default('')"
+  retries: 6
+  delay: 10
