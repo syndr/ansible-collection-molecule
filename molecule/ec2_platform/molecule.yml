@@ -17,7 +17,7 @@ platforms:
     ssh_user: molecule_runner
     hostvars:
       test_hostvar: test
-  - name: ec2-unbuntu2204
+  - name: ec2-ubuntu2204
     type: ec2
     image: ami-0cb91c7de36eed2cb
     region: us-east-2
