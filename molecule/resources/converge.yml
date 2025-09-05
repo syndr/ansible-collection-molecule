@@ -28,7 +28,7 @@
 
     - name: Verify kernel type
       ansible.builtin.assert:
-        that: result.stdout | regex_search("^Linux")
+        that: result.stdout | regex_search("^Linux") is truthy
 
     - name: Do preparation
       block:
