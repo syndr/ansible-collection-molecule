@@ -123,7 +123,7 @@
   vars:
     __ec2_platform_security_groups: "{{ __ec2_platform.security_groups or [__ec2_platform.security_group_name] }}"
     __ec2_platform_generated_image_id: "{{ (ami_info.results[0].images | sort(attribute='creation_date', reverse=True))[0].image_id }}"
-    __ec2_platform_image_id: "{{ __ec2_platform.image or __ec2_platform_generated_image_id }}"
+    __ec2_platform_image_id: "{{ __ec2_platform.image if __ec2_platform.image is truthy else __ec2_platform_generated_image_id }}"
     __ec2_platform_ssh_pubkey: "{{ (__ec2_platform_local_keypairs.results | selectattr('__ec2_platform.name', 'equalto', __ec2_platform.name) | first).public_key }}"
     __ec2_platform_generated_cloud_config:
       users:
